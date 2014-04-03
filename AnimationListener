@@ -1,0 +1,306 @@
+package evolvingWilds.vinny;
+
+import static javax.media.opengl.GL.GL_COLOR_BUFFER_BIT;
+import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
+import static javax.media.opengl.GL.GL_DEPTH_TEST;
+import static javax.media.opengl.GL.GL_FRONT;
+import static javax.media.opengl.GL.GL_LEQUAL;
+import static javax.media.opengl.GL.GL_NICEST;
+import static javax.media.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
+import static javax.media.opengl.GL2GL3.GL_QUADS;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHT1;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
+import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
+import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
+
+import javax.media.opengl.GL2;
+import javax.media.opengl.GLAutoDrawable;
+import javax.media.opengl.GLEventListener;
+import javax.media.opengl.glu.GLU;
+
+import creature.phenotype.Block;
+import creature.phenotype.Creature;
+import creature.phenotype.EnumJointSite;
+import creature.phenotype.EnumJointType;
+import creature.phenotype.EnumNeuronInputType;
+import creature.phenotype.EnumOperatorBinary;
+import creature.phenotype.EnumOperatorUnary;
+import creature.phenotype.Joint;
+import creature.phenotype.NeuronInput;
+import creature.phenotype.Rule;
+import creature.phenotype.Vector3;
+
+/**
+ * @author Mario LoPrinzi
+ * 
+ */
+public class AnimationListener implements GLEventListener
+{
+  private GLU glu; // for the GL Utility
+  Creature curCreature;
+  private static final int PANEL_WIDTH = 200; // title
+  private static final int CANVAS_WIDTH = 640 - PANEL_WIDTH; // width of the
+                                                             // drawable
+  private static final int CANVAS_HEIGHT = 480;
+
+  Block body[];
+  Critter creature;
+
+  /**
+   * Called back by the animator to perform rendering. Automatically called to
+   * render each frame every iteration. This is where boxes are drawn from and
+   * recreated after they have hit the edge of view and exploded
+   */
+  @Override
+  public void display(GLAutoDrawable drawable)
+  {
+    GL2 gl = drawable.getGL().getGL2(); // get the OpenGL 2 graphics context
+    gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear color and
+    gl.glLoadIdentity(); // reset the current model-view matrix
+                         // depth buffers
+
+    // TODO
+    // //////
+    // draw creatures here
+    // /////
+    for (int i = 0; i < creature.getBody().length; i++)
+    {
+      this.drawBlock(gl, i);
+    }
+  }
+
+  /**
+   * Called back before the OpenGL context is destroyed. Release resource such
+   * as buffers. not created because no buffers are created in this program.
+   */
+  public void dispose(GLAutoDrawable drawable)
+  {
+  }
+
+  /**
+   * Called back immediately after the OpenGL context is initialized. Can be
+   * used to perform one-time initialization. Run only once.
+   */
+  @Override
+  public void init(GLAutoDrawable drawable)
+  {
+
+    // /////////////////////////////
+    Vector3 rootForward = Vector3.FORWARD;
+    Vector3 rootUp = Vector3.UP;
+
+    Block[] body = new Block[6];
+    body[0] = new Block(Block.PARENT_INDEX_NONE, null, 8, 8, 2);
+
+    Joint joint1 = new Joint(EnumJointType.SPHERICAL,
+        EnumJointSite.VERTEX_FRONT_NORTHEAST,
+        EnumJointSite.VERTEX_FRONT_NORTHEAST, 0f);
+    Joint joint2 = new Joint(EnumJointType.RIGID,
+        EnumJointSite.VERTEX_FRONT_NORTHWEST,
+        EnumJointSite.VERTEX_FRONT_NORTHEAST, 0f);
+
+    Joint joint3 = new Joint(EnumJointType.HINGE,
+        EnumJointSite.VERTEX_BACK_NORTHEAST, EnumJointSite.EDGE_BACK_NORTH, 0f);
+    Joint joint4 = new Joint(EnumJointType.TWIST,
+        EnumJointSite.VERTEX_BACK_NORTHWEST, EnumJointSite.EDGE_BACK_NORTH, 0f);
+
+    Rule rule1 = new Rule();
+    NeuronInput neuron1A = new NeuronInput(EnumNeuronInputType.TOUCH, 0);
+    NeuronInput neuron1B = new NeuronInput(EnumNeuronInputType.CONSTANT, 5.2f);
+    NeuronInput neuron1C = new NeuronInput(EnumNeuronInputType.CONSTANT, 0.0f);
+    NeuronInput neuron1D = new NeuronInput(EnumNeuronInputType.CONSTANT, 2.0f);
+    NeuronInput neuron1E = new NeuronInput(EnumNeuronInputType.TIME);
+    rule1.setInput(neuron1A, NeuronInput.A);
+    rule1.setInput(neuron1B, NeuronInput.B);
+    rule1.setInput(neuron1C, NeuronInput.C);
+    rule1.setInput(neuron1D, NeuronInput.D);
+    rule1.setInput(neuron1E, NeuronInput.E);
+    rule1.setOp1(EnumOperatorBinary.MULTIPLY);
+    rule1.setOp2(EnumOperatorUnary.IDENTITY);
+    rule1.setOp3(EnumOperatorBinary.MULTIPLY);
+    rule1.setOp4(EnumOperatorUnary.SIN);
+    joint1.addRule(rule1, 0);
+
+    Rule rule2 = new Rule();
+    NeuronInput neuron2A = new NeuronInput(EnumNeuronInputType.JOINT, 4, 1);
+    NeuronInput neuron2B = new NeuronInput(EnumNeuronInputType.JOINT, 3, 1);
+    NeuronInput neuron2C = new NeuronInput(EnumNeuronInputType.CONSTANT, 0.5f);
+    NeuronInput neuron2D = new NeuronInput(EnumNeuronInputType.CONSTANT, 10.0f);
+    NeuronInput neuron2E = new NeuronInput(EnumNeuronInputType.CONSTANT, 0.0f);
+    rule2.setInput(neuron2A, NeuronInput.A);
+    rule2.setInput(neuron2B, NeuronInput.B);
+    rule2.setInput(neuron2C, NeuronInput.C);
+    rule2.setInput(neuron2D, NeuronInput.D);
+    rule2.setInput(neuron2E, NeuronInput.E);
+    rule2.setOp1(EnumOperatorBinary.SUBTRACT);
+    rule2.setOp2(EnumOperatorUnary.IDENTITY);
+    rule2.setOp3(EnumOperatorBinary.ADD);
+    rule2.setOp4(EnumOperatorUnary.IDENTITY);
+    joint1.addRule(rule2, 1);
+
+    Rule rule3 = new Rule();
+    NeuronInput neuron3A = new NeuronInput(EnumNeuronInputType.JOINT, 3, 1);
+    NeuronInput neuron3B = new NeuronInput(EnumNeuronInputType.JOINT, 4, 1);
+    NeuronInput neuron3C = new NeuronInput(EnumNeuronInputType.CONSTANT, 0.5f);
+    NeuronInput neuron3D = new NeuronInput(EnumNeuronInputType.JOINT, 1, 1);
+    NeuronInput neuron3E = new NeuronInput(EnumNeuronInputType.CONSTANT, 3.3f);
+    rule3.setInput(neuron3A, NeuronInput.A);
+    rule3.setInput(neuron3B, NeuronInput.B);
+    rule3.setInput(neuron3C, NeuronInput.C);
+    rule3.setInput(neuron3D, NeuronInput.D);
+    rule3.setInput(neuron3E, NeuronInput.E);
+    rule3.setOp1(EnumOperatorBinary.SUBTRACT);
+    rule3.setOp2(EnumOperatorUnary.IDENTITY);
+    rule3.setOp3(EnumOperatorBinary.MULTIPLY);
+    rule3.setOp4(EnumOperatorUnary.IDENTITY);
+    joint1.addRule(rule3, 1);
+
+    body[1] = new Block(0, joint1, 2, 4, 6);
+    body[2] = new Block(0, joint2, 2, 4, 6);
+    body[3] = new Block(0, joint3, 2, 4, 6);
+    body[4] = new Block(0, joint4, 2, 4, 6);
+
+    Joint joint5 = new Joint(EnumJointType.HINGE, EnumJointSite.FACE_FRONT,
+        EnumJointSite.EDGE_BACK_NORTH, (float) (Math.PI / 2.0));
+    body[5] = new Block(4, joint5, 1, 3, 1);
+
+    creature = new Critter(body, rootForward, rootUp);
+    // ///////////////////
+
+    GL2 gl = drawable.getGL().getGL2(); // get the OpenGL graphics context
+    glu = new GLU(); // get GL Utilities
+    gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set background (clear) color
+    gl.glClearDepth(1.0f); // set clear depth value to farthest
+    gl.glEnable(GL_DEPTH_TEST); // enables depth testing
+    gl.glDepthFunc(GL_LEQUAL); // the type of depth test to do
+    gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // best perspective
+    gl.glShadeModel(GL_SMOOTH); // blends colors nicely, and smoothes out //
+
+    // initialize the light positions and color values
+    float[] lightPos = { 0, 0, 10, 1 };
+    float[] lightColorAmbient = { 0.2f, 0.2f, 0.2f, 1f };
+    float[] lightColorSpecular = { 0.8f, 0.8f, 0.8f, 1f };
+    float[] diffuse = { .4f, .4f, .4f, .2f };
+    // Set light parameters.
+    gl.glLightfv(GL_LIGHT1, GL_POSITION, lightPos, 0);
+    gl.glLightfv(GL_LIGHT1, GL_AMBIENT, lightColorAmbient, 0);
+    gl.glLightfv(GL_LIGHT1, GL_SPECULAR, lightColorSpecular, 0);
+    gl.glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse, 0);
+
+    // Enable lighting in GL.
+    gl.glEnable(GL_LIGHT1);
+    gl.glEnable(GL_LIGHTING); // lighting
+
+  }
+
+  public void reshape(GLAutoDrawable drawable, int x, int y, int width,
+      int height)
+  {
+    GL2 gl = drawable.getGL().getGL2(); // get the OpenGL 2 graphics context
+
+    if (height == 0)
+    {
+      height = 1; // prevent divide by zero
+
+    }
+
+    float aspect = (float) CANVAS_WIDTH / CANVAS_HEIGHT;
+
+    // Set the view port (display area) to cover the entire window
+    gl.glViewport(PANEL_WIDTH, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // Setup perspective projection, with aspect ratio matches viewport
+    gl.glMatrixMode(GL_PROJECTION); // choose projection matrix
+
+    gl.glLoadIdentity(); // reset projection matrix
+
+    glu.gluPerspective(45.0, aspect, 0.1, 200.0); // fovy, aspect, zNear, zFar
+    glu.gluLookAt(0, 0, -50, 0, 0, 0, 0, 1, 0);
+    // Enable the model-view transform
+    gl.glMatrixMode(GL_MODELVIEW);
+
+    gl.glLoadIdentity(); // reset
+
+  }
+
+  private void drawBlock(GL2 gl, int i)
+  {
+
+    float boxSizeX = creature.getBody()[i].getLength();
+    float boxSizeY = creature.getBody()[i].getHeight();
+    float boxSizeZ = creature.getBody()[i].getWidth();
+
+    float color[] = { (float) Math.random(), (float) Math.random(),
+        (float) Math.random() };
+    // ----- Render the Color box -----
+
+    gl.glPushMatrix();
+
+    // stuff...
+    // gl.glMultMatrixf(rotationMatrix,0);
+    gl.glTranslatef(creature.getBlockCenter(i).x, creature.getBlockCenter(i).y,
+        creature.getBlockCenter(i).z);
+    
+    gl.glScalef(boxSizeX, boxSizeY, boxSizeZ);
+
+    gl.glBegin(GL_QUADS); // of the color box
+
+    gl.glMaterialfv(GL_FRONT, GL_AMBIENT, color, 0);
+    gl.glMaterialfv(GL_FRONT, GL_SPECULAR, color, 0);
+    gl.glMaterialf(GL_FRONT, GL_SHININESS, 0.5f);
+
+    // Top-face
+    gl.glNormal3f(0, 1, 0);
+    gl.glVertex3f(1, 1, -1);
+    gl.glVertex3f(-1, 1, -1);
+    gl.glVertex3f(-1, 1, 1);
+    gl.glVertex3f(1, 1, 1);
+
+    // Bottom-face
+    gl.glNormal3f(0, -1, 0);
+    gl.glVertex3f(1, -1, 1);
+    gl.glVertex3f(-1, -1, 1);
+    gl.glVertex3f(-1, -1, -1);
+    gl.glVertex3f(1, -1, -1);
+
+    // Front-face
+    gl.glNormal3f(0, 0, 1);
+    gl.glVertex3f(1, 1, 1);
+    gl.glVertex3f(-1, 1, 1);
+    gl.glVertex3f(-1, -1, 1);
+    gl.glVertex3f(1, -1, 1);
+
+    // Back-face
+    gl.glNormal3f(0, 0, -1);
+    gl.glVertex3f(1, -1, -1);
+    gl.glVertex3f(-1, -1, -1);
+    gl.glVertex3f(-1, 1, -1);
+    gl.glVertex3f(1, 1, -1);
+
+    // Left-face
+    gl.glNormal3f(-1, 0, 0);
+    gl.glVertex3f(-1, 1, 1);
+    gl.glVertex3f(-1, 1, -1);
+    gl.glVertex3f(-1, -1, -1);
+    gl.glVertex3f(-1, -1, 1);
+
+    // Right-face
+    gl.glNormal3f(1, 0, 0);
+    gl.glVertex3f(1, 1, -1);
+    gl.glVertex3f(1, 1, 1);
+    gl.glVertex3f(1, -1, 1);
+    gl.glVertex3f(1, -1, -1);
+
+    gl.glEnd(); // of the color box
+
+    gl.glPopMatrix();
+
+  }
+
+}
