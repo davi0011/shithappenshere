@@ -1,0 +1,21 @@
+package evolvingWilds.vinny;
+
+import javax.swing.SwingUtilities;
+
+/**
+ * @author Mario LoPrinzi
+ * 
+ */
+public class Main
+{
+
+  /**
+   * @param args
+   */
+  public static void main(String[] args)
+  {
+    GUIFrame frame = new GUIFrame();
+    SwingUtilities.invokeLater(frame);
+  }
+
+}
