@@ -1,5 +1,5 @@
 //Matt Locklin
-//Updated 4/5/2014 5:32pm
+//Updated 4/5/2014 6:46pm
 
 package creature.group;
 
@@ -27,7 +27,7 @@ public class populationthread extends Thread {
 
 		for (int i = 0; i < size; i++) {
 			creatures[i] = Birth();
-			System.out.println("KAISER: "+creatures[i].toString());
+			System.out.println("KAISER: " + creatures[i].toString());
 		}
 
 	}
@@ -79,7 +79,7 @@ public class populationthread extends Thread {
 
 		for (int i = 0; i < seglength; i++) {
 			EnumJointSite toparent = sites[randomgen.nextInt(26)];
-			EnumJointSite tochild = getValidSite(toparent,randomgen);
+			EnumJointSite tochild = getValidSite(toparent, randomgen);
 			Joint joint = new Joint(jointtypes[randomgen.nextInt(4)],
 					sites[randomgen.nextInt(26)], sites[randomgen.nextInt(26)],
 					getRandomOrientation(randomgen));
@@ -95,35 +95,16 @@ public class populationthread extends Thread {
 			leg[i] = new Block(i, joint, length, width, height);
 
 			Rule rule = new Rule();
-			NeuronInput neuron1A = new NeuronInput(EnumNeuronInputType.CONSTANT, 1f);
-		    NeuronInput neuron1B = new NeuronInput(EnumNeuronInputType.CONSTANT, 0f);
-		    NeuronInput neuron1C = new NeuronInput(EnumNeuronInputType.CONSTANT, 0f);
-		    NeuronInput neuron1D = new NeuronInput(EnumNeuronInputType.CONSTANT, 0f);
-		    NeuronInput neuron1E = new NeuronInput(EnumNeuronInputType.CONSTANT, Float.MAX_VALUE);
-		    
-		    rule.setInput(neuron1A, NeuronInput.A);
-		    rule.setInput(neuron1B, NeuronInput.B);
-		    rule.setInput(neuron1C, NeuronInput.C);
-		    rule.setInput(neuron1D, NeuronInput.D);
-		    rule.setInput(neuron1E, NeuronInput.E);
-		    
-		    rule.setOp1(EnumOperatorBinary.ADD);
-		    rule.setOp2(EnumOperatorUnary.IDENTITY);
-		    rule.setOp3(EnumOperatorBinary.ADD);
-		    rule.setOp4(EnumOperatorUnary.IDENTITY);
-			// changes these
-			/*
-			NeuronInput neuron1A = new NeuronInput(EnumNeuronInputType.HEIGHT,
-					i);
-			NeuronInput neuron1B = new NeuronInput(EnumNeuronInputType.TOUCH, 0);
-			NeuronInput neuron1C = new NeuronInput(EnumNeuronInputType.JOINT,
-					i, joint.getType().getDoF());
+			NeuronInput neuron1A = new NeuronInput(
+					EnumNeuronInputType.CONSTANT, 1f);
+			NeuronInput neuron1B = new NeuronInput(
+					EnumNeuronInputType.CONSTANT, 0f);
+			NeuronInput neuron1C = new NeuronInput(
+					EnumNeuronInputType.CONSTANT, 0f);
 			NeuronInput neuron1D = new NeuronInput(
-					EnumNeuronInputType.CONSTANT, randomgen.nextFloat());// test
-																			// for
-																			// range
+					EnumNeuronInputType.CONSTANT, 0f);
 			NeuronInput neuron1E = new NeuronInput(
-					EnumNeuronInputType.CONSTANT, Float.MAX_VALUE);// Fix later
+					EnumNeuronInputType.CONSTANT, Float.MAX_VALUE);
 
 			rule.setInput(neuron1A, NeuronInput.A);
 			rule.setInput(neuron1B, NeuronInput.B);
@@ -131,11 +112,32 @@ public class populationthread extends Thread {
 			rule.setInput(neuron1D, NeuronInput.D);
 			rule.setInput(neuron1E, NeuronInput.E);
 
-			rule.setOp1(binaries[randomgen.nextInt(7)]);
-			rule.setOp2(unaries[randomgen.nextInt(7)]);
-			rule.setOp3(binaries[randomgen.nextInt(7)]);
-			rule.setOp4(unaries[randomgen.nextInt(7)]);
-*/
+			rule.setOp1(EnumOperatorBinary.ADD);
+			rule.setOp2(EnumOperatorUnary.IDENTITY);
+			rule.setOp3(EnumOperatorBinary.ADD);
+			rule.setOp4(EnumOperatorUnary.IDENTITY);
+			// changes these
+			/*
+			 * NeuronInput neuron1A = new
+			 * NeuronInput(EnumNeuronInputType.HEIGHT, i); NeuronInput neuron1B
+			 * = new NeuronInput(EnumNeuronInputType.TOUCH, 0); NeuronInput
+			 * neuron1C = new NeuronInput(EnumNeuronInputType.JOINT, i,
+			 * joint.getType().getDoF()); NeuronInput neuron1D = new
+			 * NeuronInput( EnumNeuronInputType.CONSTANT,
+			 * randomgen.nextFloat());// test // for // range NeuronInput
+			 * neuron1E = new NeuronInput( EnumNeuronInputType.CONSTANT,
+			 * Float.MAX_VALUE);// Fix later
+			 * 
+			 * rule.setInput(neuron1A, NeuronInput.A); rule.setInput(neuron1B,
+			 * NeuronInput.B); rule.setInput(neuron1C, NeuronInput.C);
+			 * rule.setInput(neuron1D, NeuronInput.D); rule.setInput(neuron1E,
+			 * NeuronInput.E);
+			 * 
+			 * rule.setOp1(binaries[randomgen.nextInt(7)]);
+			 * rule.setOp2(unaries[randomgen.nextInt(7)]);
+			 * rule.setOp3(binaries[randomgen.nextInt(7)]);
+			 * rule.setOp4(unaries[randomgen.nextInt(7)]);
+			 */
 			joint.addRule(rule, 0);
 		}
 		int bodyindex = 1;
@@ -171,14 +173,17 @@ public class populationthread extends Thread {
 		return Math.abs(r.nextFloat() * 2 * (float) Math.PI);
 
 	}
-	private EnumJointSite getValidSite(EnumJointSite parent, Random r){
-		int randomint =r.nextInt(26);
+
+	//doesn't prevent site colisions
+	private EnumJointSite getValidSite(EnumJointSite parent, Random r) {
+		int randomint = r.nextInt(26);
 		EnumJointSite[] sites = EnumJointSite.values();
-		
-	    EnumJointSite out = sites[randomint];
-	    if(out ==parent)
-	    	//almost done
-		return parent;
+
+		EnumJointSite out = sites[randomint];
+		if (out.ordinal() == parent.ordinal())
+			return getValidSite(parent, r);
+		else
+			return parent;
 	}
 
 	public static void main(String[] args) throws InterruptedException {
