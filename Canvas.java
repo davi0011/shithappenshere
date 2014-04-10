@@ -13,7 +13,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 public class Canvas extends GLCanvas
 {
 
-  private static final int FPS = 60; // animator's target frames per second
+  private static final int FPS = 30; // animator's target frames per second
   // Create a animator that drives canvas' display() at the specified FPS.
   final FPSAnimator animator;
 
