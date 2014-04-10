@@ -164,6 +164,7 @@ public class BlockBrain
 
   public void changeJoint()
   {
+    choiceType = 1;
     currentJoint = jointWeight.get(rand.nextInt(jointWeight.size()));
     int degreeOfFreedom = jointSwitch(currentJoint).getDoF();
 
@@ -193,9 +194,32 @@ public class BlockBrain
   {
     return joint;
   }
+  
+  int choiceType = 0;
   public void confirmChange()
   {
-    choiceOfJoint = currentJoint;
-    jointWeight.add(choiceOfJoint);
+    switch(choiceType)
+    {
+    case 1: //JointType
+      choiceOfJoint = currentJoint;
+      jointWeight.add(choiceOfJoint);
+      break;
+    case 2: //rules
+      for(byte i = 0; i > jointType.getDoF(); i++)
+        for(byte k = 0; k > 6; k++)
+        {
+          ruleLists[i][k].confirmChange();
+        }
+    }
+  }
+
+  public void changeRules()
+  {
+    choiceType = 2;
+    for(byte i = 0; i > jointType.getDoF(); i++)
+      for(byte k = 0; k > 6; k++)
+      {
+        ruleLists[i][k].changeRule();
+      }
   }
 }
