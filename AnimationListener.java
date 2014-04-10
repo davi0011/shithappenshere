@@ -64,11 +64,13 @@ public class AnimationListener implements GLEventListener
     gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear color and
     gl.glLoadIdentity(); // reset the current model-view matrix
                          // depth buffers
+    creature.advanceSimulation();
 
     // TODO
     // //////
     // draw creatures here
     // /////
+    gl.glTranslatef(0, -10, 0);
     for (int i = 0; i < creature.getBody().length; i++)
     {
       this.drawBlock(gl, i);
@@ -77,7 +79,7 @@ public class AnimationListener implements GLEventListener
 
   /**
    * Called back before the OpenGL context is destroyed. Release resource such
-   * as buffers. not created because no buffers are created in this program.
+   * as buffers. not used because no buffers are created in this program.
    */
   public void dispose(GLAutoDrawable drawable)
   {
@@ -215,7 +217,7 @@ public class AnimationListener implements GLEventListener
     joint6.addRule(rule6, 0);
     joint7.addRule(rule7, 0);
 
-    creature = new Critter(body, rootForward, rootUp);
+    creature = new Critter(body, rootForward, rootUp, true);
     // ///////////////////
 
     GL2 gl = drawable.getGL().getGL2(); // get the OpenGL graphics context
@@ -276,23 +278,20 @@ public class AnimationListener implements GLEventListener
 
   private void drawBlock(GL2 gl, int i)
   {
-    creature.advanceSimulation();
 
     float boxSizeX = creature.getBody()[i].getLength();
     float boxSizeY = creature.getBody()[i].getHeight();
     float boxSizeZ = creature.getBody()[i].getWidth();
     float[] rotationMatrix = new float[16];
-
     Vector3.vectorsToRotationMatrix(rotationMatrix,
         creature.getBlockForwardVector(i), creature.getBlockUpVector(i));
 
-    float color[] = { (float) (Math.random() * boxSizeX) % 1,
-        (float) (Math.random() * boxSizeY) % 1, (float) (Math.random()*boxSizeZ)%1 };
+    float color[] = { (boxSizeX), (boxSizeY), (boxSizeZ) };
     // ----- Render the Color box -----
 
     gl.glPushMatrix();
-    gl.glTranslatef(creature.getBlockCenter(i).x, creature.getBlockCenter(i).y,
-        creature.getBlockCenter(i).z);
+    gl.glTranslatef(creature.getBlockCenter(i).x * 2,
+        creature.getBlockCenter(i).y * 2, creature.getBlockCenter(i).z * 2);
 
     gl.glMultMatrixf(rotationMatrix, 0);
 
