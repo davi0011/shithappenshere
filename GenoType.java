@@ -1,5 +1,5 @@
 //Matt Locklin
-//Updated 4/8/14 11:27pm
+//Updated 4/10/14 4:39pm
 
 package creature.group;
 
@@ -70,5 +70,17 @@ public class Genotype extends Critter {
 	public Allele[] getGenotype() {
 		return dna;
 	}
-
+	public int getDnaLength(){
+		return dna.length;
+	}
+	public Allele get_Allele(int i){
+		if(i>dna.length)
+			throw new IndexOutOfBoundsException("[" + i
+					+ "] Out of bounds exception size: "+dna.length+"\n");
+		else
+			return dna[i];
+	}
+	public void setDna(int index, Object o, EnumAlleleType at){
+		dna[index] = new Allele(o,at);
+	}
 }
