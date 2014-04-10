@@ -34,7 +34,7 @@ public class Critter extends Creature
 
       for (int i = 0; i < blockList.length; i++)
       {
-        brainList[i] = new BlockBrain(rand, i);
+        brainList[i] = new BlockBrain(rand, i, blockList[i]);
       }
     }
   }
