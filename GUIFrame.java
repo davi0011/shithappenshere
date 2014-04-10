@@ -1,7 +1,5 @@
 package evolvingWilds.vinny;
 
-
-
 /**
  * @author Mario LoPrinzi
  * @date 3/24/14
@@ -26,11 +24,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
+import javax.swing.Timer;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import creature.phenotype.Block;
-import creature.phenotype.Creature;
 import creature.phenotype.EnumJointSite;
 import creature.phenotype.EnumJointType;
 import creature.phenotype.EnumNeuronInputType;
@@ -42,11 +42,12 @@ import creature.phenotype.Rule;
 import creature.phenotype.Vector3;
 
 @SuppressWarnings("serial")
-public class GUIFrame extends JFrame implements ActionListener, Runnable
+public class GUIFrame extends JFrame implements ActionListener, Runnable,
+    ChangeListener
 {
-
+  Timer timer = new Timer(1000, this);
   // Define constants for the top-level container
-  private static String TITLE = "Fireworks display! Jogl Lab"; // window's
+  private static String TITLE = "Genetic GUI"; // window's
   static final int PANEL_WIDTH = 200; // title
   private static final int CANVAS_WIDTH = 640 - PANEL_WIDTH; // width of the
                                                              // drawable
@@ -68,11 +69,13 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable
   private JLabel sliderLabel2 = new JLabel("Which Creature");
   private JSlider slider2 = new JSlider();
   private JTable creatureTable = new JTable();
-  private boolean paused = false;
+  private boolean aniPaused = false;
+  private boolean threadPaused = false;
 
   @Override
   public void actionPerformed(ActionEvent e)
   {
+
     if (e.getSource() == aniCreature)
     {
       this.pauseGL();
@@ -81,6 +84,8 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable
     else if (e.getSource() == pause)
     {
       // stop entire evolution process
+      this.pauseThread();
+      nextGen.setEnabled(threadPaused);
     }
 
     else if (e.getSource() == nextGen)
@@ -106,6 +111,11 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable
       // select the creature on the tribe
       this.updateData();
     }
+    else if (e.getSource().equals(timer))
+    {
+//      System.out.println(System.currentTimeMillis());
+       this.updateData();
+    }
 
   }
 
@@ -114,12 +124,18 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable
     pause.addActionListener(this);
 
     nextGen.addActionListener(this);
-
+    nextGen.setEnabled(threadPaused);
     aniCreature.addActionListener(this);
 
     table.addActionListener(this);
 
     save.addActionListener(this);
+
+    slider1.addChangeListener(this);
+
+    slider2.addChangeListener(this);
+
+    timer.start();
 
   }
 
@@ -202,102 +218,159 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable
     System.out.println(tribeNum + " " + creatureNum);
   }
 
-  public void pauseGL()
+  private void pauseGL()
   {
-    if (paused)
+    if (aniPaused)
     {
       canvas.animator.resume();
-      paused = false;
+      aniPaused = false;
     }
     else
     {
       canvas.animator.pause();
-      paused = true;
+      aniPaused = true;
+    }
+  }
+
+  private void pauseThread()
+  {
+    if (threadPaused)
+    {
+      threadPaused = false;
+    }
+    else
+    {
+      threadPaused = true;
     }
   }
 
   private void toTable()
   {
-    // /////////////////////////////
     Vector3 rootForward = Vector3.FORWARD;
     Vector3 rootUp = Vector3.UP;
 
-    Block[] body = new Block[6];
-    body[0] = new Block(Block.PARENT_INDEX_NONE, null, 8, 8, 2);
+    Block[] body = new Block[12];
+    body[0] = new Block(Block.PARENT_INDEX_NONE, null, 3, 1, 4);
 
-    Joint joint1 = new Joint(EnumJointType.SPHERICAL,
-        EnumJointSite.VERTEX_FRONT_NORTHEAST,
-        EnumJointSite.VERTEX_FRONT_NORTHEAST, 0f);
-    Joint joint2 = new Joint(EnumJointType.RIGID,
-        EnumJointSite.VERTEX_FRONT_NORTHWEST,
-        EnumJointSite.VERTEX_FRONT_NORTHEAST, 0f);
-
+    // Joint(type, siteOnParent, siteOnChild, orientation)
+    // Joint(type, siteOnParent, siteOnChild, orientation)
+    Joint joint1 = new Joint(EnumJointType.HINGE,
+        EnumJointSite.VERTEX_FRONT_SOUTHEAST,
+        EnumJointSite.VERTEX_BACK_SOUTHWEST, (float) (Math.PI / 2));
+    Joint joint2 = new Joint(EnumJointType.HINGE,
+        EnumJointSite.VERTEX_FRONT_SOUTHWEST,
+        EnumJointSite.VERTEX_BACK_SOUTHEAST, -(float) (Math.PI / 2));
     Joint joint3 = new Joint(EnumJointType.HINGE,
-        EnumJointSite.VERTEX_BACK_NORTHEAST, EnumJointSite.EDGE_BACK_NORTH, 0f);
-    Joint joint4 = new Joint(EnumJointType.TWIST,
-        EnumJointSite.VERTEX_BACK_NORTHWEST, EnumJointSite.EDGE_BACK_NORTH, 0f);
+        EnumJointSite.VERTEX_BACK_SOUTHEAST,
+        EnumJointSite.VERTEX_FRONT_SOUTHWEST, (float) (5 * Math.PI / 6));
+    Joint joint4 = new Joint(EnumJointType.HINGE,
+        EnumJointSite.VERTEX_BACK_SOUTHWEST,
+        EnumJointSite.VERTEX_FRONT_SOUTHEAST, -(float) (5 * Math.PI / 6));
+
+    Joint joint5 = new Joint(EnumJointType.TWIST, EnumJointSite.FACE_NORTH,
+        EnumJointSite.FACE_BACK, 0);
+    Joint joint6 = new Joint(EnumJointType.TWIST, EnumJointSite.FACE_FRONT,
+        EnumJointSite.FACE_EAST, 0);
+    Joint joint7 = new Joint(EnumJointType.TWIST, EnumJointSite.FACE_WEST,
+        EnumJointSite.FACE_WEST, 0);
+
+    Joint joint8 = new Joint(EnumJointType.RIGID, EnumJointSite.FACE_NORTH,
+        EnumJointSite.FACE_NORTH, 0);
+    Joint joint9 = new Joint(EnumJointType.RIGID, EnumJointSite.FACE_NORTH,
+        EnumJointSite.FACE_NORTH, 0);
+    Joint joint10 = new Joint(EnumJointType.RIGID, EnumJointSite.FACE_NORTH,
+        EnumJointSite.FACE_NORTH, 0);
+    Joint joint11 = new Joint(EnumJointType.RIGID, EnumJointSite.FACE_NORTH,
+        EnumJointSite.FACE_NORTH, 0);
+
+    body[1] = new Block(0, joint1, 1, 2, 1);
+    body[2] = new Block(0, joint2, 1, 2, 1);
+    body[3] = new Block(0, joint3, 1, 2, 1);
+    body[4] = new Block(0, joint4, 1, 2, 1);
+    body[5] = new Block(0, joint5, 1, 1, 1);
+    body[6] = new Block(5, joint6, 1, 1, 1);
+    body[7] = new Block(6, joint7, 1, 1, 1);
+
+    body[8] = new Block(1, joint8, 1, 1, 1);
+    body[9] = new Block(2, joint9, 1, 1, 1);
+    body[10] = new Block(3, joint10, 1, 1, 1);
+    body[11] = new Block(4, joint11, 1, 1, 1);
 
     Rule rule1 = new Rule();
-    NeuronInput neuron1A = new NeuronInput(EnumNeuronInputType.TOUCH, 0);
-    NeuronInput neuron1B = new NeuronInput(EnumNeuronInputType.CONSTANT, 5.2f);
-    NeuronInput neuron1C = new NeuronInput(EnumNeuronInputType.CONSTANT, 0.0f);
-    NeuronInput neuron1D = new NeuronInput(EnumNeuronInputType.CONSTANT, 2.0f);
-    NeuronInput neuron1E = new NeuronInput(EnumNeuronInputType.TIME);
+    NeuronInput neuron1A = new NeuronInput(EnumNeuronInputType.CONSTANT, 1f);
+    NeuronInput neuron1B = new NeuronInput(EnumNeuronInputType.CONSTANT, 0f);
+    NeuronInput neuron1C = new NeuronInput(EnumNeuronInputType.CONSTANT, 0f);
+    NeuronInput neuron1D = new NeuronInput(EnumNeuronInputType.CONSTANT, 0f);
+    NeuronInput neuron1E = new NeuronInput(EnumNeuronInputType.CONSTANT,
+        Float.MAX_VALUE);
+
     rule1.setInput(neuron1A, NeuronInput.A);
     rule1.setInput(neuron1B, NeuronInput.B);
     rule1.setInput(neuron1C, NeuronInput.C);
     rule1.setInput(neuron1D, NeuronInput.D);
     rule1.setInput(neuron1E, NeuronInput.E);
-    rule1.setOp1(EnumOperatorBinary.MULTIPLY);
+
+    rule1.setOp1(EnumOperatorBinary.ADD);
     rule1.setOp2(EnumOperatorUnary.IDENTITY);
-    rule1.setOp3(EnumOperatorBinary.MULTIPLY);
-    rule1.setOp4(EnumOperatorUnary.SIN);
+    rule1.setOp3(EnumOperatorBinary.ADD);
+    rule1.setOp4(EnumOperatorUnary.IDENTITY);
+
+    Rule rule5 = new Rule();
+    Rule rule6 = new Rule();
+    Rule rule7 = new Rule();
+
+    NeuronInput neuron5A = new NeuronInput(EnumNeuronInputType.CONSTANT, 1f);
+    NeuronInput neuron5B = new NeuronInput(EnumNeuronInputType.CONSTANT, 0f);
+    NeuronInput neuron5C = new NeuronInput(EnumNeuronInputType.CONSTANT, 0f);
+    NeuronInput neuron5D = new NeuronInput(EnumNeuronInputType.CONSTANT, 0f);
+    NeuronInput neuron5E = new NeuronInput(EnumNeuronInputType.CONSTANT, 100.0f);
+    NeuronInput neuron6E = new NeuronInput(EnumNeuronInputType.CONSTANT,
+        -150.0f);
+    NeuronInput neuron7E = new NeuronInput(EnumNeuronInputType.CONSTANT, 100.0f);
+
+    rule5.setInput(neuron5A, NeuronInput.A);
+    rule5.setInput(neuron5B, NeuronInput.B);
+    rule5.setInput(neuron5C, NeuronInput.C);
+    rule5.setInput(neuron5D, NeuronInput.D);
+    rule5.setInput(neuron5E, NeuronInput.E);
+
+    rule6.setInput(neuron5A, NeuronInput.A);
+    rule6.setInput(neuron5B, NeuronInput.B);
+    rule6.setInput(neuron5C, NeuronInput.C);
+    rule6.setInput(neuron5D, NeuronInput.D);
+    rule6.setInput(neuron6E, NeuronInput.E);
+
+    rule7.setInput(neuron5A, NeuronInput.A);
+    rule7.setInput(neuron5B, NeuronInput.B);
+    rule7.setInput(neuron5C, NeuronInput.C);
+    rule7.setInput(neuron5D, NeuronInput.D);
+    rule7.setInput(neuron7E, NeuronInput.E);
+
+    rule5.setOp1(EnumOperatorBinary.ADD);
+    rule5.setOp2(EnumOperatorUnary.IDENTITY);
+    rule5.setOp3(EnumOperatorBinary.ADD);
+    rule5.setOp4(EnumOperatorUnary.IDENTITY);
+
+    rule6.setOp1(EnumOperatorBinary.ADD);
+    rule6.setOp2(EnumOperatorUnary.IDENTITY);
+    rule6.setOp3(EnumOperatorBinary.ADD);
+    rule6.setOp4(EnumOperatorUnary.IDENTITY);
+
+    rule7.setOp1(EnumOperatorBinary.ADD);
+    rule7.setOp2(EnumOperatorUnary.IDENTITY);
+    rule7.setOp3(EnumOperatorBinary.ADD);
+    rule7.setOp4(EnumOperatorUnary.IDENTITY);
+
     joint1.addRule(rule1, 0);
+    joint2.addRule(rule1, 0);
+    joint3.addRule(rule1, 0);
+    joint4.addRule(rule1, 0);
 
-    Rule rule2 = new Rule();
-    NeuronInput neuron2A = new NeuronInput(EnumNeuronInputType.JOINT, 4, 1);
-    NeuronInput neuron2B = new NeuronInput(EnumNeuronInputType.JOINT, 3, 1);
-    NeuronInput neuron2C = new NeuronInput(EnumNeuronInputType.CONSTANT, 0.5f);
-    NeuronInput neuron2D = new NeuronInput(EnumNeuronInputType.CONSTANT, 10.0f);
-    NeuronInput neuron2E = new NeuronInput(EnumNeuronInputType.CONSTANT, 0.0f);
-    rule2.setInput(neuron2A, NeuronInput.A);
-    rule2.setInput(neuron2B, NeuronInput.B);
-    rule2.setInput(neuron2C, NeuronInput.C);
-    rule2.setInput(neuron2D, NeuronInput.D);
-    rule2.setInput(neuron2E, NeuronInput.E);
-    rule2.setOp1(EnumOperatorBinary.SUBTRACT);
-    rule2.setOp2(EnumOperatorUnary.IDENTITY);
-    rule2.setOp3(EnumOperatorBinary.ADD);
-    rule2.setOp4(EnumOperatorUnary.IDENTITY);
-    joint1.addRule(rule2, 1);
+    joint5.addRule(rule5, 0);
+    joint6.addRule(rule6, 0);
+    joint7.addRule(rule7, 0);
 
-    Rule rule3 = new Rule();
-    NeuronInput neuron3A = new NeuronInput(EnumNeuronInputType.JOINT, 3, 1);
-    NeuronInput neuron3B = new NeuronInput(EnumNeuronInputType.JOINT, 4, 1);
-    NeuronInput neuron3C = new NeuronInput(EnumNeuronInputType.CONSTANT, 0.5f);
-    NeuronInput neuron3D = new NeuronInput(EnumNeuronInputType.JOINT, 1, 1);
-    NeuronInput neuron3E = new NeuronInput(EnumNeuronInputType.CONSTANT, 3.3f);
-    rule3.setInput(neuron3A, NeuronInput.A);
-    rule3.setInput(neuron3B, NeuronInput.B);
-    rule3.setInput(neuron3C, NeuronInput.C);
-    rule3.setInput(neuron3D, NeuronInput.D);
-    rule3.setInput(neuron3E, NeuronInput.E);
-    rule3.setOp1(EnumOperatorBinary.SUBTRACT);
-    rule3.setOp2(EnumOperatorUnary.IDENTITY);
-    rule3.setOp3(EnumOperatorBinary.MULTIPLY);
-    rule3.setOp4(EnumOperatorUnary.IDENTITY);
-    joint1.addRule(rule3, 1);
-
-    body[1] = new Block(0, joint1, 2, 4, 6);
-    body[2] = new Block(0, joint2, 2, 4, 6);
-    body[3] = new Block(0, joint3, 2, 4, 6);
-    body[4] = new Block(0, joint4, 2, 4, 6);
-
-    Joint joint5 = new Joint(EnumJointType.HINGE, EnumJointSite.FACE_FRONT,
-        EnumJointSite.EDGE_BACK_NORTH, (float) (Math.PI / 2.0));
-    body[5] = new Block(4, joint5, 1, 3, 1);
-
-    Creature creature = new Creature(body, rootForward, rootUp);
+    Critter creature = new Critter(body, rootForward, rootUp, true);
     // ///////////////////
 
     String rows[] = creature.toString().split("\n");
@@ -325,5 +398,12 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable
     frame2.setVisible(true);
     frame2.setLocation(640, 0);
     frame2.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+  }
+
+  @Override
+  public void stateChanged(ChangeEvent e)
+  {
+
+    this.updateData();
   }
 }
