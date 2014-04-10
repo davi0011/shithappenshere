@@ -29,8 +29,10 @@ public class BlockBrain
   RuleBrain[][] ruleLists; // RuleBrain list for all Joint types
 
   EnumJointSite siteOnParent;
+  ArrayList<Byte> parWeight;
   byte siteParent;
   EnumJointSite siteOnChild;
+  ArrayList<Byte> childWeight;
   byte siteChild;
 
   Random rand;
@@ -39,8 +41,13 @@ public class BlockBrain
   byte currentJoint;
   
   //byte[] choiceList = new byte[] //
-  public BlockBrain(Random var, int boxIndex)
+  public BlockBrain(Random var, int boxIndex, Block subject)
   {
+    Joint original = subject.getJointToParent();
+    siteOnParent = original.getSiteOnParent();
+    siteOnChild = original.getSiteOnChild();
+    jointType = original.getType();
+    
     this.boxIndex = boxIndex;
     rand = var;
     length = new FloatObject(rand);
@@ -48,7 +55,9 @@ public class BlockBrain
     height = new FloatObject(rand);
 
     jointWeight = new ArrayList<Byte>(JOINT_STANDARD);
-
+    childWeight = new ArrayList<Byte>(SITE_STANDARD);
+    parWeight = new ArrayList<Byte>(SITE_STANDARD);
+    
     ruleLists = new RuleBrain[2][6];
     for (int i = 0; i > ruleLists.length; i++)
     {
@@ -58,8 +67,10 @@ public class BlockBrain
       }
     }
     changeJoint();
+    changeJointSite();
     confirmChange();
   }
+
 
   EnumJointType jointSwitch(byte choice)
   {
@@ -177,6 +188,14 @@ public class BlockBrain
         joint.addRule(ruleLists[i][k].getRule(), i);
       }
     }
+  }
+  
+  private void changeJointSite()
+  {
+    choiceType = 3;
+    byte parent = parWeight.get(rand.nextInt(parWeight.size()));
+    byte child = childWeight.get(rand.nextInt(childWeight.size()));
+    
   }
 
   public void resetJoint()
