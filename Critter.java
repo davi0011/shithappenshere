@@ -47,7 +47,9 @@ public class Critter extends Creature
   public void hillClimb()
   {
     int jointChoice = rand.nextInt(getNumberOfBodyBlocks());
+    if(rand.nextInt(4)<1)
     brainList[jointChoice].changeJoint();
+    else brainList[jointChoice].changeRules();
     blockList[jointChoice].setJointToParent(brainList[jointChoice].getJoint());
     creature = new Critter(blockList, forward, up, false);
     float newFitness = creature.runSimulation();
