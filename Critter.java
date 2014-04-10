@@ -30,11 +30,11 @@ public class Critter extends Creature
     blockList = body;
     if (parent)
     {
-      brainList = new BlockBrain[blockList.length];
+      brainList = new BlockBrain[blockList.length-1];
 
-      for (int i = 0; i < blockList.length; i++)
+      for (int i = 0; i < brainList.length; i++)
       {
-        brainList[i] = new BlockBrain(rand, i, blockList[i]);
+        brainList[i] = new BlockBrain(rand, 1+i, blockList[1+i]);
       }
     }
   }
@@ -46,11 +46,11 @@ public class Critter extends Creature
 
   public void hillClimb()
   {
-    int jointChoice = rand.nextInt(getNumberOfBodyBlocks());
+    int jointChoice = rand.nextInt(getNumberOfBodyBlocks()-1);
     if(rand.nextInt(4)<1)
     brainList[jointChoice].changeJoint();
     else brainList[jointChoice].changeRules();
-    blockList[jointChoice].setJointToParent(brainList[jointChoice].getJoint());
+    blockList[jointChoice+1].setJointToParent(brainList[jointChoice].getJoint());
     creature = new Critter(blockList, forward, up, false);
     float newFitness = creature.runSimulation();
     if (newFitness > bestFitness)
