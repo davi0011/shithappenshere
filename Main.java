@@ -2,6 +2,8 @@ package evolvingWilds.vinny;
 
 import javax.swing.SwingUtilities;
 
+import evolvingWilds.mattlock.PopulationThread;
+
 /**
  * @author Mario LoPrinzi
  * 
@@ -9,13 +11,11 @@ import javax.swing.SwingUtilities;
 public class Main
 {
 
-  /**
-   * @param args
-   */
   public static void main(String[] args)
   {
-    GUIFrame frame = new GUIFrame();
-    SwingUtilities.invokeLater(frame);
+    Tribes tribeList = new Tribes();
+    // GUIFrame frame = new GUIFrame();
+    SwingUtilities.invokeLater(new GUIFrame());
   }
 
 }
