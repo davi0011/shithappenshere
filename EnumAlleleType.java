@@ -33,7 +33,7 @@ public enum EnumAlleleType {
 
 	INDEX_OF_PARENT {
 		public EnumAlleleType[] checknext() {
-			EnumAlleleType[] next = { JOINT_TYPE, null };
+			EnumAlleleType[] next = { JOINT_TYPE, LENGTH };
 			return next;
 		}
 		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.INT;}
@@ -65,7 +65,7 @@ public enum EnumAlleleType {
 
 	SITE_ON_CHILD {
 		public EnumAlleleType[] checknext() {
-			EnumAlleleType[] next = { RULE_A };
+			EnumAlleleType[] next = { RULE_A,LENGTH };
 			return next;
 		}
 		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.ENUMNEURONINPUTTYPE;}
@@ -137,7 +137,7 @@ public enum EnumAlleleType {
 
 	OP_4 {
 		public EnumAlleleType[] checknext() {
-			EnumAlleleType[] next = { LENGTH, RULE_A, null };
+			EnumAlleleType[] next = { LENGTH, RULE_A };
 			return next;
 		}
 		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.ENUMUN;}
