@@ -218,6 +218,17 @@ public class AnimationListener implements GLEventListener
     joint7.addRule(rule7, 0);
 
     creature = new Critter(body, rootForward, rootUp, true);
+    new Thread()
+    {
+      @Override
+      public void run()
+      {
+        while (true)
+        {
+          creature.hillClimb();
+        }
+      }
+    }.start();
     // ///////////////////
 
     GL2 gl = drawable.getGL().getGL2(); // get the OpenGL graphics context
@@ -230,7 +241,7 @@ public class AnimationListener implements GLEventListener
     gl.glShadeModel(GL_SMOOTH); // blends colors nicely, and smoothes out //
 
     // initialize the light positions and color values
-    float[] lightPos = { 0, 0, 10, 1 };
+    float[] lightPos = { 0, 2, -10, 1 };
     float[] lightColorAmbient = { 0.2f, 0.2f, 0.2f, 1f };
     float[] lightColorSpecular = { 0.8f, 0.8f, 0.8f, 1f };
     float[] diffuse = { .4f, .4f, .4f, .2f };
@@ -267,7 +278,7 @@ public class AnimationListener implements GLEventListener
 
     gl.glLoadIdentity(); // reset projection matrix
 
-    glu.gluPerspective(45.0, aspect, 0.1, 200.0); // fovy, aspect, zNear, zFar
+    glu.gluPerspective(50.0, aspect, 0.1, 200.0); // fovy, aspect, zNear, zFar
     glu.gluLookAt(0, 0, -40, 0, 0, 0, 0, 1, 0);
     // Enable the model-view transform
     gl.glMatrixMode(GL_MODELVIEW);
@@ -301,7 +312,8 @@ public class AnimationListener implements GLEventListener
 
     gl.glMaterialfv(GL_FRONT, GL_AMBIENT, color, 0);
     gl.glMaterialfv(GL_FRONT, GL_SPECULAR, color, 0);
-    gl.glMaterialf(GL_FRONT, GL_SHININESS, 0.5f);
+    gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, color, 0);
+    gl.glMaterialf(GL_FRONT, GL_SHININESS , .5f);
 
     // Top-face
     gl.glNormal3f(0, 1, 0);
