@@ -28,18 +28,24 @@ public class FloatObject
   
   public void changeLength()
   {
-    choice = choiceWeight.get(rand.nextInt(choiceWeight.size()));
+    if(choice == -1)
+      choice = choiceWeight.get(rand.nextInt(choiceWeight.size()));
     switch(choice)
     {
     case 0:
-      trialLength *= 1.1;
+      trialLength /= (rand.nextInt(50)+49)/100; //Increase Large Random Amount
+      break;
     case 1:
-      trialLength *= 2;
+      trialLength /= (rand.nextInt(70)+29)/100; //Increase Small Random Ammount
+      break;
     case 2:
-      trialLength *= 0.9;
+      trialLength *= (rand.nextInt(50)+49)/100;
+      break;
     case 3:
-      trialLength *= 0.5;
+      trialLength *= (rand.nextInt(70)+29)/100;
+      break;
     }
+    if (trialLength < 1) trialLength = 1;
   }
   public float getValue()
   {
@@ -48,6 +54,7 @@ public class FloatObject
   public void reset()
   {
     trialLength = bestLength;
+    choice = -1;
   }
   public void confirmChange()
   {
