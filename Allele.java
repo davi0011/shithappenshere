@@ -1,5 +1,5 @@
 //Matt Locklin
-//Updated 4/11/14 12:27pm
+//Updated 4/11/14 12:10pm
 
 package creature.group;
 
@@ -22,6 +22,9 @@ public class Allele {
 
 	public EnumAlleleType getAlleletype() {
 		return alleletype;
+	}
+	public Object getValue(){
+		return value;
 	}
 
 }
