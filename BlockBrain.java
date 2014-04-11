@@ -39,20 +39,28 @@ public class BlockBrain
   int boxIndex;
   byte choiceOfJoint;
   byte currentJoint;
-
+  boolean isNotParent = true;
+  
   // byte[] choiceList = new byte[] //
   public BlockBrain(Random var, int boxIndex, Block subject)
   {
     Joint original = subject.getJointToParent();
-    siteOnParent = original.getSiteOnParent();
-    siteOnChild = original.getSiteOnChild();
-    jointType = original.getType();
+    if (original != null)
+    {
+      siteOnParent = original.getSiteOnParent();
+      siteOnChild = original.getSiteOnChild();
+      jointType = original.getType();
+    }
+    else
+    {
+      isNotParent = false;
+    }
 
     this.boxIndex = boxIndex;
     rand = var;
-    length = new FloatObject(subject.getLength());
-    width = new FloatObject(subject.getWidth());
-    height = new FloatObject(subject.getHeight());
+    length = new FloatObject(rand, subject.getLength());
+    width = new FloatObject(rand, subject.getWidth());
+    height = new FloatObject(rand, subject.getHeight());
     orientation = new FloatObject(rand);
 
     jointWeight = new ArrayList<Byte>(JOINT_STANDARD);
@@ -179,7 +187,6 @@ public class BlockBrain
     currentJoint = jointWeight.get(rand.nextInt(jointWeight.size()));
     int degreeOfFreedom = jointSwitch(currentJoint).getDoF();
 
-    System.out.println(currentJoint);
     joint = new Joint(jointSwitch(currentJoint), siteOnParent, siteOnChild,
         orientation.getValue());
     for (int i = 0; i > degreeOfFreedom; i++)
@@ -192,16 +199,19 @@ public class BlockBrain
     }
   }
 
-  private void changeJointSite()
+  public void changeJointSite()
   {
     choiceType = 3;
     byte parent = parWeight.get(rand.nextInt(parWeight.size()));
     byte child = childWeight.get(rand.nextInt(childWeight.size()));
-
+    joint.setSiteOnChild(siteSwitch(child));
+    joint.setSiteOnParent(siteSwitch(parent));
   }
 
   public void resetJoint()
   {
+    if(isNotParent)
+    {
     joint = new Joint(jointType, siteOnParent, siteOnChild,
         orientation.getValue());
     int degreeOfFreedom = jointType.getDoF();
@@ -210,6 +220,11 @@ public class BlockBrain
       {
         joint.addRule(ruleLists[i][k].getRule(), i);
       }
+    }
+
+    length.reset();
+    width.reset();
+    height.reset();
   }
 
   public Joint getJoint()
@@ -234,23 +249,28 @@ public class BlockBrain
           ruleLists[i][k].confirmChange();
         }
     case 3: // JointSite
+      siteOnParent = joint.getSiteOnParent();
+      siteOnChild = joint.getSiteOnChild();
     case 4: // Length
-      length.incrementChoice();
+      length.confirmChange();
     case 5: // Height
-      height.incrementChoice();
+      height.confirmChange();
     case 6: // Width
-      width.incrementChoice();
+      width.confirmChange();
     }
   }
 
   public void changeRules()
   {
     choiceType = 2;
+    if(isNotParent)
+    {
     for (byte i = 0; i > jointType.getDoF(); i++)
       for (byte k = 0; k > 6; k++)
       {
         ruleLists[i][k].changeRule();
       }
+    }
   }
 
   public void changeLengths()
@@ -259,16 +279,16 @@ public class BlockBrain
     switch (choiceType)
     {
     case 4:
-      length.changeValue();
-      return;
+      length.changeLength();
+      break;
     case 5:
-      height.changeValue();
-      return;
+      height.changeLength();
+      break;
     case 6:
-      width.changeValue();
-      return;
+      width.changeLength();
+      break;
     }
-
+    
   }
 
   public float getLength()
@@ -281,6 +301,7 @@ public class BlockBrain
   {
     return height.getValue();
   }
+
   public float getWidth()
   {
     return width.getValue();
