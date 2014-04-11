@@ -1,5 +1,5 @@
 //Matt Locklin
-//Updated 4/10/2014 7:37pm
+//Updated 4/11/2014 12:40pm
 
 package creature.group;
 
@@ -11,40 +11,110 @@ import creature.phenotype.EnumJointType;
 import creature.phenotype.Joint;
 import creature.phenotype.Vector3;
 
-public class populationthread extends Thread {
+public class Populationthread extends Thread {
 
 	private Critter critters[];
 
 	private Critter alpha;
 
-	public populationthread(int size) {
+	public Populationthread(int size) {
 
-		critters= new Critter[size];
-		
-		for (int i = 0; i < size; i++) {
-			critters[i] = Birth();
-			System.out.println("KAISER: " + critters[i].toString());
-		}
+		critters = new Critter[size];
 
 	}
 
 	public void run() {
-		// hillclimb each memember
+		while (true) {
+			synchronized (this) {
+				if(critters[critters.length-1]==null){
+					for (int i = 0; i < critters.length; i++) {
+						critters[i] = Birth();
+						System.out.println("KAISER: " + i + ": " + critters[i].toString());
+					}
+				}
+				for (Critter c : critters) {
+					c.hillClimb();
+					if (alpha == null || c.bestFitness > alpha.bestFitness)
+						c = alpha;
+				}
+			}
+		}
 
 	}
 
 	private Critter singlepointxover(Critter parent) {
-		Random r = new Random();
-		Genotype alphagenes = new Genotype(alpha.getBody(),
-				alpha.getBlockForwardVector(0), alpha.getBlockUpVector(0));
-		Genotype parentgenes = new Genotype(parent.getBody(),
-				parent.getBlockForwardVector(0), parent.getBlockUpVector(0));
-		// Genotype compl =
-		return parent;
+		if (isAlpha(parent))
+			return parent;
+		Critter child = parent;
+		while (parent.bestFitness >= child.bestFitness) {
+			Random r = new Random();
+			GenoType alphagenes = new GenoType(alpha.getBody(),
+					alpha.getBlockForwardVector(0), alpha.getBlockUpVector(0));
+			GenoType parentgenes = new GenoType(parent.getBody(),
+					parent.getBlockForwardVector(0), parent.getBlockUpVector(0));
+			int crossindex = r.nextInt(getcomplexdna(alphagenes, parentgenes)
+					.getDnaLength());
+			GenoType childgenes = new GenoType(parent.getBody(),
+					parent.getBlockForwardVector(0), parent.getBlockUpVector(0));
+
+			for (int i = 0; i < getcomplexdna(alphagenes, parentgenes)
+					.getDnaLength(); i++) {
+				if (i >= crossindex) {
+					childgenes.setDna(i, getcomplexdna(alphagenes, parentgenes)
+							.get_Allele(i).getValue(),
+							getcomplexdna(alphagenes, parentgenes)
+									.get_Allele(i).getAlleletype());
+				} else
+					childgenes.setDna(i, getsimpledna(alphagenes, parentgenes)
+							.get_Allele(i).getValue(),
+							getsimpledna(alphagenes, parentgenes).get_Allele(i)
+									.getAlleletype());
+			}
+
+			child = childgenes.toCritter();
+		}
+		return child;
 	}
 
 	private Critter doubleparentxover(Critter parent) {
-		return parent;
+		if (isAlpha(parent))
+			return parent;
+		Critter child = parent;
+		while (parent.bestFitness >= child.bestFitness) {
+			Random r = new Random();
+			GenoType alphagenes = new GenoType(alpha.getBody(),
+					alpha.getBlockForwardVector(0), alpha.getBlockUpVector(0));
+			GenoType parentgenes = new GenoType(parent.getBody(),
+					parent.getBlockForwardVector(0), parent.getBlockUpVector(0));
+			int crossindexa = r.nextInt(getsimpledna(alphagenes, parentgenes)
+					.getDnaLength());
+			int crossindexb = crossindexa+r.nextInt(getcomplexdna(alphagenes, parentgenes)
+					.getDnaLength()-crossindexa);
+			if(crossindexb>getsimpledna(alphagenes, parentgenes)
+					.getDnaLength()){
+				crossindexb=getsimpledna(alphagenes, parentgenes)
+						.getDnaLength()+1;
+			}
+			GenoType childgenes = new GenoType(parent.getBody(),
+					parent.getBlockForwardVector(0), parent.getBlockUpVector(0));
+
+			for (int i = 0; i < getcomplexdna(alphagenes, parentgenes)
+					.getDnaLength(); i++) {
+				if (i <= crossindexb||1>crossindexa) {
+					childgenes.setDna(i, getcomplexdna(alphagenes, parentgenes)
+							.get_Allele(i).getValue(),
+							getcomplexdna(alphagenes, parentgenes)
+									.get_Allele(i).getAlleletype());
+				} else
+					childgenes.setDna(i, getsimpledna(alphagenes, parentgenes)
+							.get_Allele(i).getValue(),
+							getsimpledna(alphagenes, parentgenes).get_Allele(i)
+									.getAlleletype());
+			}
+
+			child = childgenes.toCritter();
+		}
+		return child;
 	}
 
 	private Critter Birth() {
@@ -54,8 +124,8 @@ public class populationthread extends Thread {
 		while (baby == null) {
 			Random randomgen = new Random();
 
-			int numberoflegs = 1;//randomgen.nextInt(7);
-			int seglength = /*randomgen.nextInt(2) +*/ 1;
+			int numberoflegs = 1;// randomgen.nextInt(7);
+			int seglength = randomgen.nextInt(2) + 1;
 
 			float length = randomgen.nextFloat() * 30;
 			float width = randomgen.nextFloat() * 30;
@@ -75,7 +145,7 @@ public class populationthread extends Thread {
 			Vector3 rootUp = Vector3.UP;
 
 			// building up
-			Block[] body = new Block[1+numberoflegs*seglength];
+			Block[] body = new Block[1 + numberoflegs * seglength];
 			body[0] = new Block(Block.PARENT_INDEX_NONE, null, length, width,
 					height);
 			Block[] leg = new Block[seglength];
@@ -137,7 +207,7 @@ public class populationthread extends Thread {
 	}
 
 	private float getRandomOrientation(Random r) {
-		return Math.abs(r.nextFloat() * (float) Math.PI/2);
+		return Math.abs(r.nextFloat() * (float) Math.PI / 2);
 
 	}
 
@@ -157,23 +227,26 @@ public class populationthread extends Thread {
 		return alpha;
 	}
 
-	private Genotype getcomplexdna(Genotype a, Genotype b) {
+	private GenoType getcomplexdna(GenoType a, GenoType b) {
 		if (a.getDnaLength() >= b.getDnaLength())
 			return a;
 		else
 			return b;
 	}
-	/*private EnumJointSite getJointOtherEnd(EnumJointSite j,Random r){
-		EnumJointSite[] sites = EnumJointSite.values();
-		if(j==EnumJointSite.VERTEX_FRONT_NORTHWEST){
-			
-		}
-			
-		
-	}*/
+
+	private GenoType getsimpledna(GenoType a, GenoType b) {
+		if (a.getDnaLength() < b.getDnaLength())
+			return a;
+		else
+			return b;
+	}
+
+	private boolean isAlpha(Critter c) {
+		return (c == alpha);
+	}
 
 	public static void main(String[] args) throws InterruptedException {
-		populationthread threadA = new populationthread(5);
+		Populationthread threadA = new Populationthread(5);
 
 	}
 
