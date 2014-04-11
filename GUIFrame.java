@@ -46,13 +46,15 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable,
     ChangeListener
 {
   Timer timer = new Timer(1000, this);
+  Timer timeUpdate = new Timer(1000 / 30, this);
   // Define constants for the top-level container
   private static String TITLE = "Genetic GUI"; // window's
   static final int PANEL_WIDTH = 200; // title
   private static final int CANVAS_WIDTH = 640 - PANEL_WIDTH; // width of the
-                                                             // drawable
+  private Critter creature; // drawable
   private static final int CANVAS_HEIGHT = 480; // height of the drawable
-
+  private static long startTime = System.currentTimeMillis();
+  private static long elapsedTime = System.currentTimeMillis();
   // Create the OpenGL rendering canvas
   private int creatureNum = 0;
   private int tribeNum = Runtime.getRuntime().availableProcessors();
@@ -61,14 +63,16 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable,
   private JPanel graphicsPanel = new JPanel();
   private JButton pause = new JButton("Pause");
   private JButton nextGen = new JButton("Next Gen");
+  private JButton reset = new JButton("Reset");
   private JToggleButton aniCreature = new JToggleButton("Animate Creature");
   private JButton table = new JButton("Print Table");
   private JButton save = new JButton("Save");
-  private JLabel sliderLabel1 = new JLabel("Tribe Number");
+  private JLabel sliderLabel1 = new JLabel("Tribe Number: " +tribeNum);
   private JSlider slider1 = new JSlider();
-  private JLabel sliderLabel2 = new JLabel("Which Creature");
+  private JLabel sliderLabel2 = new JLabel("Creature Number: " + creatureNum);
   private JSlider slider2 = new JSlider();
   private JTable creatureTable = new JTable();
+  private JLabel time = new JLabel("");
   private boolean aniPaused = false;
   private boolean threadPaused = false;
 
@@ -100,21 +104,20 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable,
       this.toTable();
     }
 
-    else if (e.getSource() == slider1)
+    else if (e.getSource().equals(timer))
     {
-      // select the tribe
+      // System.out.println(System.currentTimeMillis());
       this.updateData();
     }
 
-    else if (e.getSource() == slider2)
+    else if (e.getSource().equals(timeUpdate))
     {
-      // select the creature on the tribe
-      this.updateData();
+      time.setText("elapsed time:" + getTime());
+
     }
-    else if (e.getSource().equals(timer))
+    else if (e.getSource().equals(reset))
     {
-//      System.out.println(System.currentTimeMillis());
-       this.updateData();
+      creature.resetSimulation();
     }
 
   }
@@ -136,7 +139,7 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable,
     slider2.addChangeListener(this);
 
     timer.start();
-
+    timeUpdate.start();
   }
 
   /**
@@ -173,6 +176,7 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable,
     rightPanel.add(pause);
     rightPanel.add(nextGen);
     rightPanel.add(aniCreature);
+    rightPanel.add(reset);
     rightPanel.add(table);
     rightPanel.add(save);
     rightPanel.add(sliderLabel1);
@@ -180,6 +184,7 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable,
     rightPanel.add(sliderLabel2);
     rightPanel.add(slider2);
     rightPanel.add(creatureTable);
+    rightPanel.add(time);
 
     graphicsPanel.add(canvas);
     frame.add(rightPanel);
@@ -214,8 +219,8 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable,
     // grab creature and populate the data
     tribeNum = slider1.getValue();
     creatureNum = slider2.getValue();
-
-    System.out.println(tribeNum + " " + creatureNum);
+    sliderLabel1.setText("Tribe Number: " +tribeNum);
+    sliderLabel2.setText("Creature Number: " +creatureNum);
   }
 
   private void pauseGL()
@@ -370,7 +375,7 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable,
     joint6.addRule(rule6, 0);
     joint7.addRule(rule7, 0);
 
-    Critter creature = new Critter(body, rootForward, rootUp, true);
+    creature = new Critter(body, rootForward, rootUp, true);
     // ///////////////////
 
     String rows[] = creature.toString().split("\n");
@@ -405,5 +410,31 @@ public class GUIFrame extends JFrame implements ActionListener, Runnable,
   {
 
     this.updateData();
+  }
+
+  private String getTime()
+  {
+    StringBuilder time = new StringBuilder("");
+    elapsedTime = System.currentTimeMillis() - startTime;
+    long elapsedSecs = elapsedTime / 1000;
+    long elapsedMins = elapsedSecs / 60;
+    long mins = elapsedMins % 60;
+    long secs = elapsedSecs % 60;
+
+    // Minutes.
+    if (mins < 10)
+    {
+      time.append("0");
+    }
+    time.append(mins);
+
+    time.append(":");
+    // Seconds.
+    if (secs < 10)
+    {
+      time.append("0");
+    }
+    time.append(secs);
+    return time.toString();
   }
 }
