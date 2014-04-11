@@ -48,17 +48,19 @@ public class Critter extends Creature
   {
     int jointChoice = rand.nextInt(getNumberOfBodyBlocks()-1);
     if(rand.nextInt(4)<1)
-    brainList[jointChoice].changeJoint();
+      brainList[jointChoice].changeJoint();
     else brainList[jointChoice].changeRules();
     blockList[jointChoice+1].setJointToParent(brainList[jointChoice].getJoint());
     creature = new Critter(blockList, forward, up, false);
     float newFitness = creature.runSimulation();
     if (newFitness > bestFitness)
     {
+      System.out.println(bestFitness + "-->" + newFitness+": Improved!");
       bestFitness = newFitness;
       brainList[jointChoice].confirmChange();
     } else
     {
+      System.err.println(newFitness+": No Improvement");
       brainList[jointChoice].resetJoint();
     }
   }
