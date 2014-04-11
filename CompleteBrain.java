@@ -20,14 +20,16 @@ public class CompleteBrain
   public CompleteBrain(Block[] blockArray, Random val)
   {
     adaptionChoices = new ArrayList<Byte>(Arrays.asList(new Byte[]
-    { 0, 1, 2, 3 }));
+    { 0, 1, 2, 3 , 4}));
     // 0 = Joint Type; 1 = Rule - change 1; 2 = Rule - change all
     // 3 = changeLength; 4 = Joint Site
+    // 5 = addChildToBlock
     //rand = val;
 
     for (int i = 0; i < blockArray.length; i++)
     {
       brainList.add(new BlockBrain(rand, i, blockArray[i]));
+      blockArray[i].setJointToParent(brainList.get(i).getJoint());
     }
     creatureList = Arrays.asList(blockArray);
   }
@@ -59,6 +61,10 @@ public class CompleteBrain
     case 4:
       blockChoice.changeJointSite();
       temp.setJointToParent(blockChoice.getJoint());
+      break;
+    case 5:
+      Block childBlock = new Block(blockIndex, null, 1.0f, 1.0f, 1.0f);
+      BlockBrain childBrain = new BlockBrain(rand, creatureList.size(), childBlock);
       break;
     }
     try
