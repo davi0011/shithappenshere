@@ -1,5 +1,5 @@
 //Matt Locklin
-//Updated 4/10/14 4:39pm
+//Updated 4/10/14 7:59pm
 
 package creature.group;
 
@@ -14,7 +14,7 @@ public class Genotype extends Critter {
 	private EnumAlleleType next[] = { EnumAlleleType.LENGTH, null };
 
 	public Genotype(Block[] body, Vector3 rootForward, Vector3 rootUp) {
-		super(body, rootForward, rootUp);
+		super(body, rootForward, rootUp,true);
 
 		for (Block b : body) {
 			insert(b.getLength(), EnumAlleleType.LENGTH);
