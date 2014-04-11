@@ -26,7 +26,7 @@ public class FloatObject
 
   public float getValue()
   {
-    return length;
+    return length + stepsize;
   }
   
   public void changeValue()
@@ -47,14 +47,12 @@ public class FloatObject
     {
       stepsize /= 2;
     }
-    length += stepsize;
     cont = false;
     increasing = false;
   }
   private void decrease()
   {
-    stepsize /= 2;
-    length -= stepsize;
+    stepsize *= -1;
     cont = true;
     if(length < 1)
     {
@@ -68,6 +66,7 @@ public class FloatObject
   {
     cont ^= cont;
     increasing ^= increasing;
+    length += stepsize;
     
   }
 }
