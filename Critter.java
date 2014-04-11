@@ -22,7 +22,8 @@ public class Critter extends Creature
     return bestFitness;
   }
 
-  public Critter(Block[] body, Vector3 rootForward, Vector3 rootUp, boolean parent)
+  public Critter(Block[] body, Vector3 rootForward, Vector3 rootUp,
+      boolean parent)
   {
     super(body, rootForward, rootUp);
     forward = rootForward;
@@ -30,11 +31,11 @@ public class Critter extends Creature
     blockList = body;
     if (parent)
     {
-      brainList = new BlockBrain[blockList.length-1];
+      brainList = new BlockBrain[blockList.length - 1];
 
       for (int i = 0; i < brainList.length; i++)
       {
-        brainList[i] = new BlockBrain(rand, 1+i, blockList[1+i]);
+        brainList[i] = new BlockBrain(rand, 1 + i, blockList[1 + i]);
       }
     }
   }
@@ -46,21 +47,30 @@ public class Critter extends Creature
 
   public void hillClimb()
   {
-    int jointChoice = rand.nextInt(getNumberOfBodyBlocks()-1);
-    if(rand.nextInt(4)<1)
-      brainList[jointChoice].changeJoint();
-    else brainList[jointChoice].changeRules();
-    blockList[jointChoice+1].setJointToParent(brainList[jointChoice].getJoint());
+    int jointChoice = rand.nextInt(getNumberOfBodyBlocks() - 1);
+    if (rand.nextInt(4) < 1)
+      brainList[jointChoice].changeRules();
+    else
+    {
+      brainList[jointChoice].changeLengths();
+      System.out.println("Changing lengths");
+    }
+    BlockBrain temp = brainList[jointChoice];
+    blockList[jointChoice + 1].setSize(temp.getLength(), temp.getHeight(),
+        temp.getWidth());
+    blockList[jointChoice + 1].setJointToParent(brainList[jointChoice]
+        .getJoint());
+
     creature = new Critter(blockList, forward, up, false);
     float newFitness = creature.runSimulation();
     if (newFitness > bestFitness)
     {
-      System.out.println(bestFitness + "-->" + newFitness+": Improved!");
+      System.out.println(bestFitness + "-->" + newFitness + ": Improved!");
       bestFitness = newFitness;
       brainList[jointChoice].confirmChange();
     } else
     {
-      System.err.println(newFitness+": No Improvement");
+      System.err.println(newFitness + ": No Improvement");
       brainList[jointChoice].resetJoint();
     }
   }
