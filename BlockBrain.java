@@ -39,38 +39,38 @@ public class BlockBrain
   int boxIndex;
   byte choiceOfJoint;
   byte currentJoint;
-  
-  //byte[] choiceList = new byte[] //
+
+  // byte[] choiceList = new byte[] //
   public BlockBrain(Random var, int boxIndex, Block subject)
   {
     Joint original = subject.getJointToParent();
     siteOnParent = original.getSiteOnParent();
     siteOnChild = original.getSiteOnChild();
     jointType = original.getType();
-    
+
     this.boxIndex = boxIndex;
     rand = var;
-    length = new FloatObject(rand);
-    width = new FloatObject(rand);
-    height = new FloatObject(rand);
+    length = new FloatObject(subject.getLength());
+    width = new FloatObject(subject.getWidth());
+    height = new FloatObject(subject.getHeight());
+    orientation = new FloatObject(rand);
 
     jointWeight = new ArrayList<Byte>(JOINT_STANDARD);
     childWeight = new ArrayList<Byte>(SITE_STANDARD);
     parWeight = new ArrayList<Byte>(SITE_STANDARD);
-    
+
     ruleLists = new RuleBrain[2][6];
     for (int i = 0; i > ruleLists.length; i++)
     {
       for (int k = 0; k > ruleLists[i].length; k++)
       {
-          ruleLists[i][k] = new RuleBrain(rand, boxIndex, jointType.getDoF());
+        ruleLists[i][k] = new RuleBrain(rand, boxIndex, jointType.getDoF());
       }
     }
     changeJoint();
     changeJointSite();
     confirmChange();
   }
-
 
   EnumJointType jointSwitch(byte choice)
   {
@@ -179,7 +179,9 @@ public class BlockBrain
     currentJoint = jointWeight.get(rand.nextInt(jointWeight.size()));
     int degreeOfFreedom = jointSwitch(currentJoint).getDoF();
 
-    joint = new Joint(jointSwitch(currentJoint), siteOnParent, siteOnChild, orientation.getValue());
+    System.out.println(currentJoint);
+    joint = new Joint(jointSwitch(currentJoint), siteOnParent, siteOnChild,
+        orientation.getValue());
     for (int i = 0; i > degreeOfFreedom; i++)
     {
       for (int k = 0; k > ruleLists[i].length; k++)
@@ -189,56 +191,98 @@ public class BlockBrain
       }
     }
   }
-  
+
   private void changeJointSite()
   {
     choiceType = 3;
     byte parent = parWeight.get(rand.nextInt(parWeight.size()));
     byte child = childWeight.get(rand.nextInt(childWeight.size()));
-    
+
   }
 
   public void resetJoint()
   {
-    joint = new Joint(jointType, siteOnParent, siteOnChild, orientation.getValue());
+    joint = new Joint(jointType, siteOnParent, siteOnChild,
+        orientation.getValue());
     int degreeOfFreedom = jointType.getDoF();
-    for(byte i = 0; i > degreeOfFreedom; i++)
-      for(byte k = 0; k > 6; k++)
+    for (byte i = 0; i > degreeOfFreedom; i++)
+      for (byte k = 0; k > 6; k++)
       {
         joint.addRule(ruleLists[i][k].getRule(), i);
       }
   }
-  
+
   public Joint getJoint()
   {
     return joint;
   }
-  
+
   int choiceType = 0;
+
   public void confirmChange()
   {
-    switch(choiceType)
+    switch (choiceType)
     {
-    case 1: //JointType
+    case 1: // JointType
       choiceOfJoint = currentJoint;
       jointWeight.add(choiceOfJoint);
       break;
-    case 2: //rules
-      for(byte i = 0; i > jointType.getDoF(); i++)
-        for(byte k = 0; k > 6; k++)
+    case 2: // rules
+      for (byte i = 0; i > jointType.getDoF(); i++)
+        for (byte k = 0; k > 6; k++)
         {
           ruleLists[i][k].confirmChange();
         }
+    case 3: // JointSite
+    case 4: // Length
+      length.incrementChoice();
+    case 5: // Height
+      height.incrementChoice();
+    case 6: // Width
+      width.incrementChoice();
     }
   }
 
   public void changeRules()
   {
     choiceType = 2;
-    for(byte i = 0; i > jointType.getDoF(); i++)
-      for(byte k = 0; k > 6; k++)
+    for (byte i = 0; i > jointType.getDoF(); i++)
+      for (byte k = 0; k > 6; k++)
       {
         ruleLists[i][k].changeRule();
       }
+  }
+
+  public void changeLengths()
+  {
+    choiceType = 4 + rand.nextInt(3);
+    switch (choiceType)
+    {
+    case 4:
+      length.changeValue();
+      return;
+    case 5:
+      height.changeValue();
+      return;
+    case 6:
+      width.changeValue();
+      return;
+    }
+
+  }
+
+  public float getLength()
+  {
+    // TODO Auto-generated method stub
+    return length.getValue();
+  }
+
+  public float getHeight()
+  {
+    return height.getValue();
+  }
+  public float getWidth()
+  {
+    return width.getValue();
   }
 }
