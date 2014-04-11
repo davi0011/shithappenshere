@@ -1,0 +1,87 @@
+package evolvingWilds.james;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
+import creature.phenotype.Block;
+
+public class CompleteBrain
+{
+
+  ArrayList<BlockBrain> brainList = new ArrayList<BlockBrain>();
+  ArrayList<Byte> adaptionChoices;
+  List<Block> creatureList;
+  byte adaptChoice;
+  BlockBrain blockChoice;
+  Random rand = new Random();
+
+  public CompleteBrain(Block[] blockArray, Random val)
+  {
+    adaptionChoices = new ArrayList<Byte>(Arrays.asList(new Byte[]
+    { 0, 1, 2, 3 }));
+    // 0 = Joint Type; 1 = Rule - change 1; 2 = Rule - change all
+    // 3 = changeLength; 4 = Joint Site
+    //rand = val;
+
+    for (int i = 0; i < blockArray.length; i++)
+    {
+      brainList.add(new BlockBrain(rand, i, blockArray[i]));
+    }
+    creatureList = Arrays.asList(blockArray);
+  }
+
+  byte blockIndex;
+  public Block[] changeCreature()
+  {
+    blockIndex = (byte) rand.nextInt(brainList.size());
+    blockChoice = brainList.get(blockIndex);
+    adaptChoice = adaptionChoices.get(rand.nextInt(adaptionChoices.size()));
+    if(creatureList.get(blockIndex).getIndexOfParent() == Block.PARENT_INDEX_NONE) adaptChoice = 3;
+    Block temp = creatureList.get(blockIndex);
+    switch(adaptChoice)
+    {
+    case 0:
+      blockChoice.changeJoint();
+      temp.setJointToParent(blockChoice.getJoint());
+      break;
+    case 1:
+      blockChoice.changeRules();
+      temp.setJointToParent(blockChoice.getJoint());
+      break;
+    case 2:
+      break;
+    case 3:
+      blockChoice.changeLengths();
+      temp.setSize(blockChoice.getLength(), blockChoice.getHeight(), blockChoice.getWidth());
+      break;
+    case 4:
+      blockChoice.changeJointSite();
+      temp.setJointToParent(blockChoice.getJoint());
+      break;
+    }
+    try
+    {
+    temp = new Block(temp.getIndexOfParent(), temp.getJointToParent(), temp.getLength(), temp.getHeight(), temp.getWidth());
+    creatureList.set(blockIndex, temp);
+    
+    return (Block[]) creatureList.toArray();
+    }
+    catch(IllegalArgumentException e)
+    {
+      //System.out.println("Caught");
+      throw e;
+    }
+  }
+
+  public void confirmChange()
+  {
+    blockChoice.confirmChange();
+  }
+
+  public void resetChange()
+  {
+    blockChoice.resetJoint();
+  }
+}
