@@ -1,21 +1,24 @@
 package evolvingWilds.vinny;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import creature.phenotype.Block;
 import creature.phenotype.Creature;
 import creature.phenotype.Vector3;
 import evolvingWilds.james.BlockBrain;
+import evolvingWilds.james.CompleteBrain;
 
 public class Critter extends Creature
 {
   Block blockList[];
-  BlockBrain brainList[];
   Random rand = new Random();
   float bestFitness;
   Vector3 forward;
   Vector3 up;
   Critter creature;
+  CompleteBrain decisions;
 
   public float getFitness()
   {
@@ -23,20 +26,16 @@ public class Critter extends Creature
   }
 
   public Critter(Block[] body, Vector3 rootForward, Vector3 rootUp,
-      boolean parent)
+      boolean isParent)
   {
     super(body, rootForward, rootUp);
     forward = rootForward;
     up = rootUp;
     blockList = body;
-    if (parent)
-    {
-      brainList = new BlockBrain[blockList.length - 1];
 
-      for (int i = 0; i < brainList.length; i++)
-      {
-        brainList[i] = new BlockBrain(rand, 1 + i, blockList[1 + i]);
-      }
+    if (isParent)
+    {
+      decisions = new CompleteBrain(body, rand);
     }
   }
 
@@ -45,33 +44,45 @@ public class Critter extends Creature
     return blockList;
   }
 
+  boolean isIllegal;
+  boolean notPrinted;
+
   public void hillClimb()
   {
-    int jointChoice = rand.nextInt(getNumberOfBodyBlocks() - 1);
-    if (rand.nextInt(4) < 1)
-      brainList[jointChoice].changeRules();
-    else
+    Block[] attemptBlockList = blockList;// = decisions.changeCreature();
+    isIllegal = true;
+    //System.out.print("================Hillclimbing");
+    notPrinted = true;
+    int i = 0;
+    while (isIllegal)
     {
-      brainList[jointChoice].changeLengths();
-      System.out.println("Changing lengths");
+      try
+      {
+        attemptBlockList = decisions.changeCreature();
+        creature = new Critter(attemptBlockList, forward, up, false);
+        isIllegal = false;
+      } catch (IllegalArgumentException e)
+      {
+        //e.printStackTrace();
+        decisions.resetChange();
+        //i++;
+        //System.out.print(".");
+      }
     }
-    BlockBrain temp = brainList[jointChoice];
-    blockList[jointChoice + 1].setSize(temp.getLength(), temp.getHeight(),
-        temp.getWidth());
-    blockList[jointChoice + 1].setJointToParent(brainList[jointChoice]
-        .getJoint());
-
-    creature = new Critter(blockList, forward, up, false);
+    //System.out.println();
+    //if(i == 100) return;
+    System.out.println("Changed ~ ");
     float newFitness = creature.runSimulation();
     if (newFitness > bestFitness)
     {
-      System.out.println(bestFitness + "-->" + newFitness + ": Improved!");
+      System.err.println(bestFitness + "-->" + newFitness + ": Improved!");
       bestFitness = newFitness;
-      brainList[jointChoice].confirmChange();
+      decisions.confirmChange();
+      blockList = attemptBlockList;
     } else
     {
-      System.err.println(newFitness + ": No Improvement");
-      brainList[jointChoice].resetJoint();
+      System.out.println(newFitness);
+      decisions.resetChange();
     }
   }
 
@@ -82,7 +93,7 @@ public class Critter extends Creature
 
     int steps = 0;
 
-    while (steps < 500)
+    while (steps < 1000)
     {
       curFitness = advanceSimulation();
       if (curFitness > newFitness)
