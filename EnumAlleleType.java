@@ -3,6 +3,8 @@
 
 package creature.group;
 
+import creature.group.EnumAlleleReturn;
+
 public enum EnumAlleleType {
 
 	LENGTH {
@@ -10,6 +12,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { WIDTH };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.FLOAT;}
 	},
 
 	WIDTH {
@@ -17,6 +20,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { HEIGHT };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.FLOAT;}
 	},
 
 	HEIGHT {
@@ -24,6 +28,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { INDEX_OF_PARENT };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.FLOAT;}
 	},
 
 	INDEX_OF_PARENT {
@@ -31,6 +36,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { JOINT_TYPE, null };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.INT;}
 	},
 
 	JOINT_TYPE {
@@ -38,6 +44,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { ORIENTATION };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.ENUMJOINTTYPE;}
 	},
 
 	ORIENTATION {
@@ -45,6 +52,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { SITE_ON_PARENT };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.FLOAT;}
 	},
 
 	SITE_ON_PARENT {
@@ -52,6 +60,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { SITE_ON_CHILD };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.ENUMJOINTSITE;}
 	},
 
 	SITE_ON_CHILD {
@@ -59,6 +68,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { RULE_A };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.ENUMNEURONINPUTTYPE;}
 	},
 
 	RULE_A {
@@ -66,6 +76,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { RULE_B };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.ENUMNEURONINPUTTYPE;}
 	},
 
 	RULE_B {
@@ -73,6 +84,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { RULE_C };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.ENUMNEURONINPUTTYPE;}
 	},
 
 	RULE_C {
@@ -80,6 +92,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { RULE_D };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.ENUMNEURONINPUTTYPE;}
 	},
 
 	RULE_D {
@@ -87,6 +100,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { RULE_E };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.ENUMNEURONINPUTTYPE;}
 	},
 
 	RULE_E {
@@ -94,6 +108,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { OP_1 };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.ENUMNEURONINPUTTYPE;}
 	},
 
 	OP_1 {
@@ -101,6 +116,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { OP_2 };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.ENUMBIN;}
 	},
 
 	OP_2 {
@@ -108,6 +124,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { OP_3 };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.ENUMUN;}
 	},
 
 	OP_3 {
@@ -115,6 +132,7 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { OP_4 };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.ENUMBIN;}
 	},
 
 	OP_4 {
@@ -122,6 +140,8 @@ public enum EnumAlleleType {
 			EnumAlleleType[] next = { LENGTH, RULE_A, null };
 			return next;
 		}
+		public EnumAlleleReturn getReturnType(){return EnumAlleleReturn.ENUMUN;}
 	};
 	public abstract EnumAlleleType[] checknext();
+	public abstract EnumAlleleReturn getReturnType();
 }
