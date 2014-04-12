@@ -2,6 +2,7 @@ package evolvingWilds.james;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -25,15 +26,23 @@ public class CompleteBrain
     // 3 = changeLength; 4 = Joint Site
     // 5 = addChildToBlock
     //rand = val;
-
+    
     for (int i = 0; i < blockArray.length; i++)
     {
       brainList.add(new BlockBrain(rand, i, blockArray[i]));
       blockArray[i].setJointToParent(brainList.get(i).getJoint());
+      blockArray[i] = new Block(blockArray[i]);
     }
     creatureList = Arrays.asList(blockArray);
   }
-
+  
+  public Block[] initializeRules()
+  {
+    Block[] blockArray = toArray();
+    
+    return blockArray;
+  }
+  
   byte blockIndex;
   public Block[] changeCreature()
   {
@@ -64,7 +73,7 @@ public class CompleteBrain
       break;
     case 5:
       Block childBlock = new Block(blockIndex, null, 1.0f, 1.0f, 1.0f);
-      BlockBrain childBrain = new BlockBrain(rand, creatureList.size(), childBlock);
+      BlockBrain childBrain = new BlockBrain(rand, creatureList.size(), null);
       break;
     }
     try
@@ -72,7 +81,7 @@ public class CompleteBrain
     temp = new Block(temp.getIndexOfParent(), temp.getJointToParent(), temp.getLength(), temp.getHeight(), temp.getWidth());
     creatureList.set(blockIndex, temp);
     
-    return (Block[]) creatureList.toArray();
+    return toArray();
     }
     catch(IllegalArgumentException e)
     {
@@ -89,5 +98,19 @@ public class CompleteBrain
   public void resetChange()
   {
     blockChoice.resetJoint();
+  }
+  private Block[] toArray()
+  {
+    Block[] blockArray = new Block[creatureList.size()];
+    
+    Iterator<Block> blockIt = creatureList.iterator();
+    int i = 0;
+    while(blockIt.hasNext())
+    {
+      blockArray[i] = blockIt.next();
+      i++;
+    }
+    
+    return blockArray;
   }
 }
