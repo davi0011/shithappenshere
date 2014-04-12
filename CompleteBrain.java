@@ -21,11 +21,11 @@ public class CompleteBrain
   public CompleteBrain(Block[] blockArray, Random val)
   {
     adaptionChoices = new ArrayList<Byte>(Arrays.asList(new Byte[]
-    { 0, 1, 2, 3 , 4, 5}));
+    { 0, 1, 2, 3, 4, 5}));
     // 0 = Joint Type; 1 = Rule - change 1; 2 = Rule - change all
     // 3 = changeLength; 4 = Joint Site
     // 5 = addChildToBlock
-    //rand = val;
+    // rand = val;
 
     ArrayList<Block> temp = new ArrayList<Block>();
     for (int i = 0; i < blockArray.length; i++)
@@ -37,16 +37,18 @@ public class CompleteBrain
     }
     creatureList = temp;
   }
-  
+
   byte blockIndex;
+
   public Block[] changeCreature()
   {
     blockIndex = (byte) rand.nextInt(brainList.size());
     blockChoice = brainList.get(blockIndex);
     adaptChoice = adaptionChoices.get(rand.nextInt(adaptionChoices.size()));
-    if(creatureList.get(blockIndex).getIndexOfParent() == Block.PARENT_INDEX_NONE) adaptChoice = 3;
+    if (creatureList.get(blockIndex).getIndexOfParent() == Block.PARENT_INDEX_NONE)
+      adaptChoice = 3;
     Block temp = creatureList.get(blockIndex);
-    switch(adaptChoice)
+    switch (adaptChoice)
     {
     case 0:
       blockChoice.changeJoint();
@@ -60,7 +62,8 @@ public class CompleteBrain
       break;
     case 3:
       blockChoice.changeLengths();
-      temp.setSize(blockChoice.getLength(), blockChoice.getHeight(), blockChoice.getWidth());
+      temp.setSize(blockChoice.getLength(), blockChoice.getHeight(),
+          blockChoice.getWidth());
       break;
     case 4:
       blockChoice.changeJointSite();
@@ -68,22 +71,22 @@ public class CompleteBrain
       break;
     case 5:
       BlockBrain childBrain = new BlockBrain(rand, creatureList.size());
-      Block childBlock = new Block(blockIndex, childBrain.getJoint(), 1.0f, 1.0f, 1.0f);
+      Block childBlock = new Block(blockIndex, childBrain.getJoint(), 1.0f,
+          1.0f, 1.0f);
       brainList.add(childBrain);
       creatureList.add(childBlock);
-      System.out.println("Adding a block");
       break;
     }
     try
     {
-    temp = new Block(temp.getIndexOfParent(), temp.getJointToParent(), temp.getLength(), temp.getHeight(), temp.getWidth());
-    creatureList.set(blockIndex, temp);
-    
-    return toArray();
-    }
-    catch(IllegalArgumentException e)
+        temp = new Block(temp.getIndexOfParent(), temp.getJointToParent(),
+            temp.getLength(), temp.getHeight(), temp.getWidth());
+        creatureList.set(blockIndex, temp);
+
+      return toArray();
+    } catch (IllegalArgumentException e)
     {
-      //System.out.println("Caught");
+      // System.out.println("Caught");
       throw e;
     }
   }
@@ -95,27 +98,27 @@ public class CompleteBrain
 
   public void resetChange()
   {
-    if(adaptChoice == 5)
+    if (adaptChoice == 5)
     {
-      creatureList.remove(creatureList.size()-1);
-      brainList.remove(brainList.size()-1);
-      System.out.println("Block failed");
+      creatureList.remove(creatureList.size() - 1);
+      brainList.remove(brainList.size() - 1);
     }
-    
+
     blockChoice.resetJoint();
   }
+
   private Block[] toArray()
   {
     Block[] blockArray = new Block[creatureList.size()];
-    
+
     Iterator<Block> blockIt = creatureList.iterator();
     int i = 0;
-    while(blockIt.hasNext())
+    while (blockIt.hasNext())
     {
       blockArray[i] = blockIt.next();
       i++;
     }
-    
+
     return blockArray;
   }
 }
