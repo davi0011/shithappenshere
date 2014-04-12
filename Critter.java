@@ -15,6 +15,7 @@ public class Critter extends Creature
   Block blockList[];
   Random rand = new Random();
   public float bestFitness;
+  public float lastFitness;
   Vector3 forward;
   Vector3 up;
   Critter creature;
@@ -33,16 +34,18 @@ public class Critter extends Creature
     up = rootUp;
     blockList = body;
 
-    if (isParent)
+    if (isParent)//Critter acts as its own wrapper class,
+      //so this removes initalizations
     {
       decisions = new CompleteBrain(body, rand);
-      // blockList = decisions.initializeRules();
+      //this keeps track of values
     }
   }
 
   public Critter clone()
   {
 
+    //Avoiding call by reference for cloning methods
     Block[] body = new Block[blockList.length];
     for (int i = 0; i < blockList.length; i++)
     {
@@ -54,8 +57,8 @@ public class Critter extends Creature
     Vector3 forward = new Vector3(this.forward);
     Vector3 up = new Vector3(this.up);
     Critter clone = new Critter(body, forward, up, false);
-    clone.bestFitness = bestFitness;
-    return new Critter(body, forward, up, false);
+    clone.bestFitness = bestFitness; //Makes sure fitness is passed
+    return clone;
   }
 
   public Block[] getBody()
@@ -68,24 +71,23 @@ public class Critter extends Creature
 
   public void hillClimb()
   {
-    Block[] attemptBlockList = blockList;// = decisions.changeCreature();
+    Block[] attemptBlockList = blockList;
     isIllegal = true;
     // System.out.print("================Hillclimbing");
     notPrinted = true;
-    int i = 0;
-    while (isIllegal)
+    while (isIllegal) //Will keep hillclimbing from making an illegal creature
     {
       try
       {
+        //Block creation to check sizes
         attemptBlockList = decisions.changeCreature();
+        //Critter creation to check validity
         creature = new Critter(attemptBlockList, forward, up, false);
         isIllegal = false;
       } catch (IllegalArgumentException e)
       {
         // e.printStackTrace();
         decisions.resetChange();
-        // i++;
-        // System.out.print(".");
       }
     }
     // System.out.println();
@@ -93,9 +95,9 @@ public class Critter extends Creature
     float newFitness = creature.runSimulation();
     if (newFitness > bestFitness)
     {
-      System.err.println(bestFitness + "-->" + newFitness + ": Improved!");
+      //assigns last changes to creature
+      //System.err.println(bestFitness + "-->" + newFitness + ": Improved!");
       bestFitness = newFitness;
-      assert(bestFitness == getFitness());
       decisions.confirmChange();
       blockList = attemptBlockList;
     } else
@@ -111,6 +113,7 @@ public class Critter extends Creature
 
     int steps = 0;
     boolean hasNotPrinted = true;
+    //Loops for 500 steps after the last best fitness
     while (steps < 500)
     {
       try
@@ -119,19 +122,33 @@ public class Critter extends Creature
       } catch (IllegalArgumentException e)
       {
         if (hasNotPrinted)
-        {
-          e.printStackTrace();
+        { //Some error with the force Vectors inside run simulation
+          //e.printStackTrace();
+          System.err.println();
           hasNotPrinted = false;
         }
 
       }
       if (curFitness > newFitness)
       {
+        //assures loop continues if creature is jumping
         newFitness = curFitness;
         steps = 0;
       }
       steps++;
     }
     return newFitness;
+  }
+
+  public int index;
+  public void setIndex(int i)
+  {
+    //Index of the Creature on the little bar thing
+    index = i;
+    
+  }
+  public int getIndex()
+  {
+    return index;
   }
 }
