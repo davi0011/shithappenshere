@@ -1,4 +1,4 @@
-package evolvingWilds.james;
+package creature.evolvingWilds.james;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,59 +8,79 @@ public class FloatObject
 {
   Random rand;
   ArrayList<Byte> choiceWeight = new ArrayList<Byte>(Arrays.asList(new Byte[]
-  { 0, 1, 2, 3, 4}));
-  
+  { 0, 1, 2, 3, 4 }));
+
   float trialLength = 0;
   float bestLength = 0;
   byte choice;
-  
+
   public FloatObject(Random var)
   {
     rand = var;
-    bestLength = trialLength = (rand.nextInt(900)+100) /((float)100) + 1;
+    bestLength = trialLength = (rand.nextInt(900) + 100) / ((float) 100) + 1;
   }
-  
+
   public FloatObject(Random var, float value)
   {
     rand = var;
     bestLength = trialLength = value;
   }
-  
+
   public void changeLength()
   {
-    if(choice == -1)
+    if (choice == -1)
       choice = choiceWeight.get(rand.nextInt(choiceWeight.size()));
-    switch(choice)
+    switch (choice)
     {
     case 0:
-      trialLength /= (rand.nextInt(50)+49)/100f; //Increase Large Random Amount
+      trialLength /= (rand.nextInt(50) + 49) / 100f; // Increase Large Random
+                                                     // Amount
       break;
     case 1:
-      trialLength /= (rand.nextInt(70)+29)/100f; //Increase Small Random Ammount
+      trialLength /= (rand.nextInt(70) + 29) / 100f; // Increase Small Random
+                                                     // Amount
       break;
     case 2:
-      trialLength *= (rand.nextInt(50)+49)/100f;
+      trialLength *= (rand.nextInt(50) + 49) / 100f; // Decrease Large Random
+                                                     // Amount
       break;
     case 3:
-      trialLength *= (rand.nextInt(70)+29)/100f;
+      trialLength *= (rand.nextInt(70) + 29) / 100f; // Decrease Small Random
+                                                     // Amount
       break;
     case 4:
-      trialLength += rand.nextInt(5)+1;
+      trialLength += rand.nextInt(5) + 1; // Increase not related to current
+                                          // size
+      break;
+    case 5:
+      trialLength -= rand.nextInt(5) + 1; // Decrease not related to current
+                                          // size
     }
-    if (trialLength < 1) trialLength = 1;
+    if (trialLength < 1)
+    { //Confirms normal size stuff
+      trialLength = 1;
+      choice = -1;
+    }
   }
+
   public float getValue()
   {
     return trialLength;
   }
+
   public void reset()
   {
+    // removes the trial length
     trialLength = bestLength;
+    // Tells float to choose new try method
     choice = -1;
   }
+
   public void confirmChange()
   {
+    // confirms change
     bestLength = trialLength;
+    // Adds weight to last choice
     choiceWeight.add(choice);
   }
 }
