@@ -1,4 +1,4 @@
-package evolvingWilds.james;
+package creature.evolvingWilds.james;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -25,10 +25,12 @@ public class RuleBrain
   private ArrayList<Byte> ruleF;
   private ArrayList<Byte> ruleC;
   private ArrayList<Byte> ruleDE;
-
+  //Weight list
+  
   private FloatObject constant;
 
   byte[] choiceList = new byte[9];
+  //The standard working ruleset
   Rule refer = new Rule();
 
   private int boxIndex;
@@ -55,7 +57,7 @@ public class RuleBrain
     changeRule();
   }
 
-  void changeRule()
+  void changeRule() //Initializes rule table
   {
     choiceList[0] = inputA.get(rand.nextInt(inputA.size()));
     choiceList[1] = inputB.get(rand.nextInt(inputB.size()));
@@ -74,7 +76,8 @@ public class RuleBrain
   private int option;
   private byte choice;
 
-  void changeValue()
+  void changeValue() //Changes one option in rule.
+   //Will change back to those in choiceList[] if not helpful
   {
     option = rand.nextInt(choiceList.length);
     ArrayList<Byte> temp = switchArrays((byte) option);
@@ -110,16 +113,18 @@ public class RuleBrain
       refer.setOp4(unarySwitch(choice));
       break;
     }
+    constant.changeLength();
   }
 
   void confirmChange()
   {
     choiceList[option] = choice;
-    switchArrays((byte)option).add(choice);
+    switchArrays((byte) option).add(choice);
+    constant.confirmChange();
   }
 
   private void resetRule()
-  {
+  { //Resets rule to those in choiceList
     refer.setInput(inputSwitch(choiceList[0]), NeuronInput.A);
     refer.setInput(inputSwitch(choiceList[1]), NeuronInput.B);
     refer.setInput(inputSwitch(choiceList[2]), NeuronInput.C);
@@ -131,14 +136,11 @@ public class RuleBrain
     refer.setOp3(binarySwitch(choiceList[8]));
     refer.setOp4(unarySwitch(choiceList[7]));
 
-    if ((option < 6) && (choice == 4))
-    {
-      constant = new FloatObject(rand);
-    }
+    constant.reset();
   }
 
   public Rule getRule()
-  {
+  { //The rule represenation
     return refer;
   }
 
