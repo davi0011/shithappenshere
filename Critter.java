@@ -1,20 +1,20 @@
-package evolvingWilds.vinny;
+package creature.evolvingWilds.vinny;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import creature.evolvingWilds.james.BlockBrain;
+import creature.evolvingWilds.james.CompleteBrain;
 import creature.phenotype.Block;
 import creature.phenotype.Creature;
 import creature.phenotype.Vector3;
-import evolvingWilds.james.BlockBrain;
-import evolvingWilds.james.CompleteBrain;
 
 public class Critter extends Creature
 {
   Block blockList[];
   Random rand = new Random();
-  float bestFitness;
+  public float bestFitness;
   Vector3 forward;
   Vector3 up;
   Critter creature;
@@ -36,21 +36,25 @@ public class Critter extends Creature
     if (isParent)
     {
       decisions = new CompleteBrain(body, rand);
-      //blockList = decisions.initializeRules();
+      // blockList = decisions.initializeRules();
     }
   }
 
   public Critter clone()
   {
+
     Block[] body = new Block[blockList.length];
     for (int i = 0; i < blockList.length; i++)
     {
       body[i] = new Block(blockList[i]);
       body[i].setIndexOfParent(blockList[i].getIndexOfParent());
-      if(body[i].getIndexOfParent() == -1) body[i].setJointToParent(null);
+      if (body[i].getIndexOfParent() == -1)
+        body[i].setJointToParent(null);
     }
     Vector3 forward = new Vector3(this.forward);
     Vector3 up = new Vector3(this.up);
+    Critter clone = new Critter(body, forward, up, false);
+    clone.bestFitness = bestFitness;
     return new Critter(body, forward, up, false);
   }
 
@@ -91,6 +95,7 @@ public class Critter extends Creature
     {
       System.err.println(bestFitness + "-->" + newFitness + ": Improved!");
       bestFitness = newFitness;
+      assert(bestFitness == getFitness());
       decisions.confirmChange();
       blockList = attemptBlockList;
     } else
@@ -105,10 +110,21 @@ public class Critter extends Creature
     float newFitness = 0;
 
     int steps = 0;
-
-    while (steps < 1000)
+    boolean hasNotPrinted = true;
+    while (steps < 500)
     {
-      curFitness = advanceSimulation();
+      try
+      {
+        curFitness = advanceSimulation();
+      } catch (IllegalArgumentException e)
+      {
+        if (hasNotPrinted)
+        {
+          e.printStackTrace();
+          hasNotPrinted = false;
+        }
+
+      }
       if (curFitness > newFitness)
       {
         newFitness = curFitness;
