@@ -8,7 +8,7 @@ public class FloatObject
 {
   Random rand;
   ArrayList<Byte> choiceWeight = new ArrayList<Byte>(Arrays.asList(new Byte[]
-  { 0, 1, 2, 3 }));
+  { 0, 1, 2, 3, 4}));
   
   float trialLength = 0;
   float bestLength = 0;
@@ -17,7 +17,7 @@ public class FloatObject
   public FloatObject(Random var)
   {
     rand = var;
-    bestLength = trialLength = rand.nextInt(100) /(float)100;
+    bestLength = trialLength = (rand.nextInt(900)+100) /((float)100) + 1;
   }
   
   public FloatObject(Random var, float value)
@@ -33,17 +33,19 @@ public class FloatObject
     switch(choice)
     {
     case 0:
-      trialLength /= (rand.nextInt(50)+49)/100; //Increase Large Random Amount
+      trialLength /= (rand.nextInt(50)+49)/100f; //Increase Large Random Amount
       break;
     case 1:
-      trialLength /= (rand.nextInt(70)+29)/100; //Increase Small Random Ammount
+      trialLength /= (rand.nextInt(70)+29)/100f; //Increase Small Random Ammount
       break;
     case 2:
-      trialLength *= (rand.nextInt(50)+49)/100;
+      trialLength *= (rand.nextInt(50)+49)/100f;
       break;
     case 3:
-      trialLength *= (rand.nextInt(70)+29)/100;
+      trialLength *= (rand.nextInt(70)+29)/100f;
       break;
+    case 4:
+      trialLength += rand.nextInt(5)+1;
     }
     if (trialLength < 1) trialLength = 1;
   }
