@@ -10,14 +10,14 @@ public class FloatObject
   ArrayList<Byte> choiceWeight = new ArrayList<Byte>(Arrays.asList(new Byte[]
   { 0, 1, 2, 3 }));
   
-  float trialLength;
-  float bestLength;
+  float trialLength = 0;
+  float bestLength = 0;
   byte choice;
   
   public FloatObject(Random var)
   {
     rand = var;
-    bestLength = trialLength = (((float)rand.nextInt(100))/10) + .001f;
+    bestLength = trialLength = rand.nextInt(100) /(float)100;
   }
   
   public FloatObject(Random var, float value)
