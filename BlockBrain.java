@@ -44,40 +44,43 @@ public class BlockBrain
   // byte[] choiceList = new byte[] //
   public BlockBrain(Random var, int boxIndex, Block subject)
   {
+    this.boxIndex = boxIndex;
+    rand = var;
+    length = new FloatObject(rand, subject.getLength());
+    width = new FloatObject(rand, subject.getWidth());
+    height = new FloatObject(rand, subject.getHeight());
+    
     Joint original = subject.getJointToParent();
     if (original != null)
     {
       siteOnParent = original.getSiteOnParent();
       siteOnChild = original.getSiteOnChild();
       jointType = original.getType();
+      
+      jointWeight = new ArrayList<Byte>(JOINT_STANDARD);
+      childWeight = new ArrayList<Byte>(SITE_STANDARD);
+      parWeight = new ArrayList<Byte>(SITE_STANDARD);
+
+      ruleLists = new RuleBrain[2][6];
+      for (int i = 0; i < ruleLists.length; i++)
+      {
+        for (int k = 0; k < ruleLists[i].length; k++)
+        {
+          ruleLists[i][k] = new RuleBrain(rand, boxIndex, jointType.getDoF());
+          ruleLists[i][k].changeRule();
+          orientation = new FloatObject(rand);
+        }
+      }
+      changeJoint();
+      changeJointSite();
+      confirmChange();
     }
     else
     {
       isNotParent = false;
     }
 
-    this.boxIndex = boxIndex;
-    rand = var;
-    length = new FloatObject(rand, subject.getLength());
-    width = new FloatObject(rand, subject.getWidth());
-    height = new FloatObject(rand, subject.getHeight());
-    orientation = new FloatObject(rand);
 
-    jointWeight = new ArrayList<Byte>(JOINT_STANDARD);
-    childWeight = new ArrayList<Byte>(SITE_STANDARD);
-    parWeight = new ArrayList<Byte>(SITE_STANDARD);
-
-    ruleLists = new RuleBrain[2][6];
-    for (int i = 0; i > ruleLists.length; i++)
-    {
-      for (int k = 0; k > ruleLists[i].length; k++)
-      {
-        ruleLists[i][k] = new RuleBrain(rand, boxIndex, jointType.getDoF());
-      }
-    }
-    changeJoint();
-    changeJointSite();
-    confirmChange();
   }
 
   EnumJointType jointSwitch(byte choice)
@@ -189,9 +192,9 @@ public class BlockBrain
 
     joint = new Joint(jointSwitch(currentJoint), siteOnParent, siteOnChild,
         orientation.getValue());
-    for (int i = 0; i > degreeOfFreedom; i++)
+    for (int i = 0; i < degreeOfFreedom; i++)
     {
-      for (int k = 0; k > ruleLists[i].length; k++)
+      for (int k = 0; k < ruleLists[i].length; k++)
       {
         ruleLists[i][k].setDOF(jointType.getDoF());
         joint.addRule(ruleLists[i][k].getRule(), i);
@@ -215,8 +218,8 @@ public class BlockBrain
     joint = new Joint(jointType, siteOnParent, siteOnChild,
         orientation.getValue());
     int degreeOfFreedom = jointType.getDoF();
-    for (byte i = 0; i > degreeOfFreedom; i++)
-      for (byte k = 0; k > 6; k++)
+    for (byte i = 0; i < degreeOfFreedom; i++)
+      for (byte k = 0; k < 6; k++)
       {
         joint.addRule(ruleLists[i][k].getRule(), i);
       }
@@ -243,8 +246,8 @@ public class BlockBrain
       jointWeight.add(choiceOfJoint);
       break;
     case 2: // rules
-      for (byte i = 0; i > jointType.getDoF(); i++)
-        for (byte k = 0; k > 6; k++)
+      for (byte i = 0; i < jointType.getDoF(); i++)
+        for (byte k = 0; k < 6; k++)
         {
           ruleLists[i][k].confirmChange();
         }
@@ -265,8 +268,8 @@ public class BlockBrain
     choiceType = 2;
     if(isNotParent)
     {
-    for (byte i = 0; i > jointType.getDoF(); i++)
-      for (byte k = 0; k > 6; k++)
+    for (byte i = 0; i < jointType.getDoF(); i++)
+      for (byte k = 0; k < 6; k++)
       {
         ruleLists[i][k].changeRule();
       }
