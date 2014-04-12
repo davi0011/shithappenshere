@@ -13,7 +13,7 @@ public class CompleteBrain
 
   ArrayList<BlockBrain> brainList = new ArrayList<BlockBrain>();
   ArrayList<Byte> adaptionChoices;
-  List<Block> creatureList;
+  ArrayList<Block> creatureList;
   byte adaptChoice;
   BlockBrain blockChoice;
   Random rand = new Random();
@@ -21,26 +21,21 @@ public class CompleteBrain
   public CompleteBrain(Block[] blockArray, Random val)
   {
     adaptionChoices = new ArrayList<Byte>(Arrays.asList(new Byte[]
-    { 0, 1, 2, 3 , 4}));
+    { 0, 1, 2, 3 , 4, 5}));
     // 0 = Joint Type; 1 = Rule - change 1; 2 = Rule - change all
     // 3 = changeLength; 4 = Joint Site
     // 5 = addChildToBlock
     //rand = val;
-    
+
+    ArrayList<Block> temp = new ArrayList<Block>();
     for (int i = 0; i < blockArray.length; i++)
     {
       brainList.add(new BlockBrain(rand, i, blockArray[i]));
       blockArray[i].setJointToParent(brainList.get(i).getJoint());
       blockArray[i] = new Block(blockArray[i]);
+      temp.add(blockArray[i]);
     }
-    creatureList = Arrays.asList(blockArray);
-  }
-  
-  public Block[] initializeRules()
-  {
-    Block[] blockArray = toArray();
-    
-    return blockArray;
+    creatureList = temp;
   }
   
   byte blockIndex;
@@ -72,8 +67,11 @@ public class CompleteBrain
       temp.setJointToParent(blockChoice.getJoint());
       break;
     case 5:
-      Block childBlock = new Block(blockIndex, null, 1.0f, 1.0f, 1.0f);
-      BlockBrain childBrain = new BlockBrain(rand, creatureList.size(), null);
+      BlockBrain childBrain = new BlockBrain(rand, creatureList.size());
+      Block childBlock = new Block(blockIndex, childBrain.getJoint(), 1.0f, 1.0f, 1.0f);
+      brainList.add(childBrain);
+      creatureList.add(childBlock);
+      System.out.println("Adding a block");
       break;
     }
     try
@@ -97,6 +95,13 @@ public class CompleteBrain
 
   public void resetChange()
   {
+    if(adaptChoice == 5)
+    {
+      creatureList.remove(creatureList.size()-1);
+      brainList.remove(brainList.size()-1);
+      System.out.println("Block failed");
+    }
+    
     blockChoice.resetJoint();
   }
   private Block[] toArray()
