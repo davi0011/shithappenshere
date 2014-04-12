@@ -36,7 +36,22 @@ public class Critter extends Creature
     if (isParent)
     {
       decisions = new CompleteBrain(body, rand);
+      //blockList = decisions.initializeRules();
     }
+  }
+
+  public Critter clone()
+  {
+    Block[] body = new Block[blockList.length];
+    for (int i = 0; i < blockList.length; i++)
+    {
+      body[i] = new Block(blockList[i]);
+      body[i].setIndexOfParent(blockList[i].getIndexOfParent());
+      if(body[i].getIndexOfParent() == -1) body[i].setJointToParent(null);
+    }
+    Vector3 forward = new Vector3(this.forward);
+    Vector3 up = new Vector3(this.up);
+    return new Critter(body, forward, up, false);
   }
 
   public Block[] getBody()
@@ -51,7 +66,7 @@ public class Critter extends Creature
   {
     Block[] attemptBlockList = blockList;// = decisions.changeCreature();
     isIllegal = true;
-    //System.out.print("================Hillclimbing");
+    // System.out.print("================Hillclimbing");
     notPrinted = true;
     int i = 0;
     while (isIllegal)
@@ -63,15 +78,14 @@ public class Critter extends Creature
         isIllegal = false;
       } catch (IllegalArgumentException e)
       {
-        //e.printStackTrace();
+        // e.printStackTrace();
         decisions.resetChange();
-        //i++;
-        //System.out.print(".");
+        // i++;
+        // System.out.print(".");
       }
     }
-    //System.out.println();
-    //if(i == 100) return;
-    System.out.println("Changed ~ ");
+    // System.out.println();
+    // if(i == 100) return;
     float newFitness = creature.runSimulation();
     if (newFitness > bestFitness)
     {
@@ -81,7 +95,6 @@ public class Critter extends Creature
       blockList = attemptBlockList;
     } else
     {
-      System.out.println(newFitness);
       decisions.resetChange();
     }
   }
