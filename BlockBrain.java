@@ -1,4 +1,4 @@
-package evolvingWilds.james;
+package creature.evolvingWilds.james;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,10 +10,10 @@ import creature.phenotype.*;
 public class BlockBrain
 {
   public static final List<Byte> JOINT_STANDARD = Arrays.asList(new Byte[]
-  { 0, 1, 2, 3 });
+  { 0, 1, 2, 3 }); //Byte list for the types of Joints
   public static final List<Byte> SITE_STANDARD = Arrays.asList(new Byte[]
   { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-      21, 22, 23, 24, 25 });
+      21, 22, 23, 24, 25 }); //Byte list for the types of Site Positions
 
   FloatObject length;
   FloatObject width;
@@ -22,9 +22,9 @@ public class BlockBrain
   FloatObject orientation;
   // private float orientation;
 
-  ArrayList<Byte> jointWeight;
+  ArrayList<Byte> jointWeight; //Weights for JointType selection
   EnumJointType jointType; // Joint Type
-  Joint joint;
+  Joint joint; //The reference for the returned joint
 
   RuleBrain[][] ruleLists; // RuleBrain list for all Joint types
 
@@ -34,6 +34,7 @@ public class BlockBrain
   EnumJointSite siteOnChild;
   ArrayList<Byte> childWeight;
   byte siteChild;
+  //Reference, Weightlist, and option selected
 
   Random rand;
   int boxIndex;
@@ -41,7 +42,7 @@ public class BlockBrain
   byte currentJoint;
   boolean isNotParent = true;
 
-  // byte[] choiceList = new byte[] //
+  //Specific Constructor for dealing with joints without a block at the time
   public BlockBrain(Random var, int boxIndex)
   {
     this.boxIndex = boxIndex;
@@ -77,6 +78,7 @@ public class BlockBrain
 
   }
 
+  //Standard constructor type, prepares for changing joints and block size
   public BlockBrain(Random var, int boxIndex, Block subject)
   {
     this.boxIndex = boxIndex;
@@ -86,7 +88,7 @@ public class BlockBrain
     height = new FloatObject(rand, subject.getHeight());
 
     Joint original = subject.getJointToParent();
-    if (original != null)
+    if (original != null) //stops from giving parent block a joint
     {
       siteOnParent = original.getSiteOnParent();
       siteOnChild = original.getSiteOnChild();
@@ -100,15 +102,15 @@ public class BlockBrain
       for (int i = 0; i < ruleLists.length; i++)
       {
         for (int k = 0; k < ruleLists[i].length; k++)
-        {
+        { //Creates six brains for every joint
           ruleLists[i][k] = new RuleBrain(rand, boxIndex, jointType.getDoF());
           ruleLists[i][k].changeRule();
           orientation = new FloatObject(rand);
         }
       }
-      changeJoint();
+      changeJoint(); //Initialize joint with new changes
       changeJointSite();
-      confirmChange();
+      confirmChange(); //Sets joint changes to true
     }
 
     else
@@ -118,8 +120,8 @@ public class BlockBrain
 
   }
 
-  EnumJointType jointSwitch(byte choice)
-  {
+  EnumJointType jointSwitch(byte choice) //returns enum for byte representing
+  {                                      //The Joint Types
     switch (choice)
     {
     case 0:
@@ -134,7 +136,7 @@ public class BlockBrain
     return null;
   }
 
-  EnumJointSite siteSwitch(byte choice)
+  EnumJointSite siteSwitch(byte choice)//Switch representing enums with byte
   {
     switch (choice)
     {
@@ -219,16 +221,16 @@ public class BlockBrain
     return null;
   }
 
-  public void changeJoint()
+  public void changeJoint()//Changes jointType
   {
-    choiceType = 1;
+    choiceType = 1; //tracks which change was called for confirmation
     currentJoint = jointWeight.get(rand.nextInt(jointWeight.size()));
     int degreeOfFreedom = jointSwitch(currentJoint).getDoF();
 
     joint = new Joint(jointSwitch(currentJoint), siteOnParent, siteOnChild,
         orientation.getValue());
     for (int i = 0; i < degreeOfFreedom; i++)
-    {
+    { //Updating rules with new DOF type
       for (int k = 0; k < ruleLists[i].length; k++)
       {
         ruleLists[i][k].setDOF(jointType.getDoF());
@@ -238,8 +240,8 @@ public class BlockBrain
   }
 
   public void changeJointSite()
-  {
-    choiceType = 3;
+  { //changes both Joint Sites
+    choiceType = 3; //tracks which change was called for reseting
     byte parent = parWeight.get(rand.nextInt(parWeight.size()));
     byte child = childWeight.get(rand.nextInt(childWeight.size()));
     joint.setSiteOnChild(siteSwitch(child));
@@ -248,6 +250,8 @@ public class BlockBrain
 
   public void resetJoint()
   {
+    //Sets all values in the Joint representation back to their standards in 
+    //The brain
     if (isNotParent)
     {
       joint = new Joint(jointType, siteOnParent, siteOnChild,
@@ -274,6 +278,7 @@ public class BlockBrain
 
   public void confirmChange()
   {
+    //Sets the last change to its normal representations in the joint
     switch (choiceType)
     {
     case 1: // JointType
@@ -306,7 +311,7 @@ public class BlockBrain
       for (byte i = 0; i < jointType.getDoF(); i++)
         for (byte k = 0; k < 6; k++)
         {
-          ruleLists[i][k].changeRule();
+          ruleLists[i][k].changeValue();
         }
     }
   }
