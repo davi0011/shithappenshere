@@ -26,9 +26,6 @@ public class RuleBrain
   private ArrayList<Byte> ruleC;
   private ArrayList<Byte> ruleDE;
 
-  private List<ArrayList<Byte>> weight = Arrays.asList(inputA, inputB, inputC, inputD,
-      inputE, ruleAB, ruleF, ruleC, ruleDE);
-
   private FloatObject constant;
 
   byte[] choiceList = new byte[9];
@@ -61,27 +58,29 @@ public class RuleBrain
   void changeRule()
   {
     choiceList[0] = inputA.get(rand.nextInt(inputA.size()));
-    choiceList[0] = inputB.get(rand.nextInt(inputB.size()));
-    choiceList[0] = inputC.get(rand.nextInt(inputC.size()));
-    choiceList[0] = inputD.get(rand.nextInt(inputD.size()));
-    choiceList[0] = inputE.get(rand.nextInt(inputE.size()));
+    choiceList[1] = inputB.get(rand.nextInt(inputB.size()));
+    choiceList[2] = inputC.get(rand.nextInt(inputC.size()));
+    choiceList[3] = inputD.get(rand.nextInt(inputD.size()));
+    choiceList[4] = inputE.get(rand.nextInt(inputE.size()));
 
-    choiceList[0] = ruleAB.get(rand.nextInt(ruleAB.size()));
-    choiceList[0] = ruleC.get(rand.nextInt(ruleC.size()));
-    choiceList[0] = ruleDE.get(rand.nextInt(ruleDE.size()));
-    choiceList[0] = ruleF.get(rand.nextInt(ruleF.size()));
+    choiceList[5] = ruleAB.get(rand.nextInt(ruleAB.size()));
+    choiceList[6] = ruleC.get(rand.nextInt(ruleC.size()));
+    choiceList[7] = ruleDE.get(rand.nextInt(ruleDE.size()));
+    choiceList[8] = ruleF.get(rand.nextInt(ruleF.size()));
 
     resetRule();
   }
+
   private int option;
   private byte choice;
+
   void changeValue()
   {
     option = rand.nextInt(choiceList.length);
-    ArrayList<Byte> temp = weight.get(option);
-    choice = (byte)temp.get(rand.nextInt(temp.size()));
-    
-    switch(option)
+    ArrayList<Byte> temp = switchArrays((byte) option);
+    choice = (byte) temp.get(rand.nextInt(temp.size()));
+
+    switch (option)
     {
     case 0:
       refer.setInput(inputSwitch(choice), NeuronInput.A);
@@ -112,11 +111,13 @@ public class RuleBrain
       break;
     }
   }
+
   void confirmChange()
   {
     choiceList[option] = choice;
-    weight.get(option).add(choice);
+    switchArrays((byte)option).add(choice);
   }
+
   private void resetRule()
   {
     refer.setInput(inputSwitch(choiceList[0]), NeuronInput.A);
@@ -129,7 +130,13 @@ public class RuleBrain
     refer.setOp2(unarySwitch(choiceList[5]));
     refer.setOp3(binarySwitch(choiceList[8]));
     refer.setOp4(unarySwitch(choiceList[7]));
+
+    if ((option < 6) && (choice == 4))
+    {
+      constant = new FloatObject(rand);
+    }
   }
+
   public Rule getRule()
   {
     return refer;
@@ -209,8 +216,35 @@ public class RuleBrain
     }
     return null;
   }
+
   void setDOF(int degreeOfFreedom)
   {
     this.degreeOfFreedom = degreeOfFreedom;
+  }
+
+  private ArrayList<Byte> switchArrays(byte choice)
+  {
+    switch (choice)
+    {
+    case 0:
+      return inputA;
+    case 1:
+      return inputB;
+    case 2:
+      return inputC;
+    case 3:
+      return inputD;
+    case 4:
+      return inputE;
+    case 5:
+      return ruleAB;
+    case 6:
+      return ruleF;
+    case 7:
+      return ruleC;
+    case 8:
+      return ruleDE;
+    }
+    return null;
   }
 }
